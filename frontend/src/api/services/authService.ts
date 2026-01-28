@@ -14,6 +14,17 @@ export type AuthResponse = {
   user: AuthUser
 }
 
+export type RegisterRequest = {
+  name: string
+  email: string
+  password: string
+}
+
+export async function register(payload: RegisterRequest): Promise<AuthResponse> {
+  return api.post<AuthResponse>("/auth/register", payload, { auth: false })
+}
+
+
 // Laravel esperado (cuando lo montes):
 // POST /api/auth/login -> { token, user }
 export async function login(payload: LoginRequest): Promise<AuthResponse> {
