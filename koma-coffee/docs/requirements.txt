@@ -1,0 +1,44 @@
+Backend 
+    Utilizar un Framework para el desarrollo del back (Laravel, Springboot, node/express)
+    Autenticación por tokens.
+    Autorización por roles u otro mecanismo(mínimo dos roles)
+    Validación de los datos de petición.
+    Realizar como mínimo 4 CRUD 
+    Funcionalidad: Incluir generación de pdfs, envio de emails, y tareas programadas(Jobs), pasarela de pagos. (Al menos 3)
+    . Técnicos: Relaciones entre modelos y EAGER LOADING cuando sea necesario.
+ 
+Frontend 
+    Crear una aplicación SPA 
+    Consumir una API externa 
+    Manejar los datos obtenidos de la API 
+    Realizar consultas de diferentes tipos a la API (GET, POST...) 
+    Implementar la autentificación contra el Backend y mantener la sesión 
+    Realizar como mínimo XXX CRUD 
+    Usar un Framework JS (se usará React) 
+    Manejo y protección de rutas para distintos roles 
+    Optimizar la carga de recursos (datos, imágenes) 
+    Realizar distintas operaciones con Arrays (filtrado, mapeado, ordenación, ...) 
+    Emplear almacenamiento local (sessionStorage, IndexedDB, ...) 
+    Utilizar expresiones regulares 
+    Validar formularios localmente
+ 
+Maquetación 
+    Maquetar al menos XXX vistas en Html5 (dentro de lo posible) y Css3 
+    Crear tanto unas vistas para FrontEnd y Backend 
+    Diseño responsive (Desktop, tablet y mobile) 
+    Utilizar un Framework CSS (por ejemplo, Bootstrap) 
+    Utilizar un preprocesador CSS (por ejemplo, SASS) 
+    Seguir una hoja de estilos apropiada 
+ 
+Despliegue 
+    Se debe realizar un despliegue completo de las aplicaciones como si estuviera en un entorno real 
+    Se debe poder acceder al proyecto a través de un dominio.xxx 
+    Se debe utilizar un control de versiones (por ejemplo, Git) 
+
+Tecnologías empleadas
+    Tecnologías (todas justificadas)
+    Vite → rapidez, build moderno
+    React → SPA y componentes
+    TypeScript → tipado fuerte (interfaces, DTOs)
+    Tailwind CSS → diseño responsive moderno
+    Git → control de versiones
