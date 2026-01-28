@@ -26,6 +26,8 @@ function Header() {
 
         {/* Links */}
         <nav className="hidden sm:flex items-center gap-2">
+          <NavLink to="/status" className={linkClass}>Status</NavLink>
+          
           <NavLink to="/" className={linkClass}>
             Home
           </NavLink>

@@ -6,6 +6,7 @@ import Admin from "../pages/Admin"
 import ProtectedRoute from "./ProtectedRoute"
 import Forbidden from "../pages/Forbidden"
 import NotFound from "../pages/NotFound"
+import ApiStatus from "../pages/ApiStatus"
 
 function AppRouter() {
   return (
@@ -19,8 +20,9 @@ function AppRouter() {
         </ProtectedRoute>
         } />
       <Route path="/403" element={<Forbidden />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="/status" element={<ApiStatus />} />
 
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
