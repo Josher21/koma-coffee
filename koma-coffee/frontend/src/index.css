@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+:root {
+  /* Paleta Koma Coffee */
+  --bg: #F7F3EE;         /* crema */
+  --surface: #FFFFFF;    /* tarjetas */
+  --ink: #0B1220;        /* navy muy oscuro */
+  --muted: #6B7280;      /* gris texto */
+  --line: #E7E0D8;       /* borde suave */
+  --accent: #2F80ED;     /* azul principal */
+  --coffee: #6F4E37;     /* marrón café */
+  --accent-2: #1F5FBF;   /* azul más profundo (hover) */
+}

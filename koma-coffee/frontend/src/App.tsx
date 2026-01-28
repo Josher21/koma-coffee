@@ -1,10 +1,12 @@
+import Header from "./components/Header"
+import Home from "./pages/Home"
+
 function App() {
   return (
-    <div className="p-10">
-      <div className="bg-slate-900 text-white p-6 rounded-xl">
-        Tailwind funciona ✅
-      </div>
-    </div>
+    <>
+      <Header />
+      <Home />
+    </>
   )
 }
 
