@@ -1,11 +1,11 @@
 import Header from "./components/Header"
-import Home from "./pages/Home"
+import AppRouter from "./router/AppRouter"
 
 function App() {
   return (
     <>
       <Header />
-      <Home />
+      <AppRouter />
     </>
   )
 }
