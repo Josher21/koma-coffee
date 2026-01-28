@@ -4,6 +4,7 @@ import Login from "../pages/Login"
 import Register from "../pages/Register"
 import Admin from "../pages/Admin"
 import ProtectedRoute from "./ProtectedRoute"
+import Forbidden from "../pages/Forbidden"
 
 function AppRouter() {
   return (
@@ -16,6 +17,7 @@ function AppRouter() {
         <Admin />
         </ProtectedRoute>
         } />
+        <Route path="/403" element={<Forbidden />} />
 
       {/* Cualquier ruta desconocida -> Home (o 404 más adelante) */}
       <Route path="*" element={<Navigate to="/" replace />} />

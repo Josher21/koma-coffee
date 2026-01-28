@@ -19,7 +19,7 @@ export default function ProtectedRoute({
 
   // Si hay sesión pero no tiene rol, fuera (luego haremos 403)
   if (requiredRole && role !== requiredRole) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/403" replace />
   }
 
   return children
