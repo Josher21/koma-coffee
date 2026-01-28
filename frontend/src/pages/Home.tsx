@@ -1,3 +1,9 @@
+/** Prueba paraa comprobar la llamada al backend */
+import { useEffect, useState } from "react"
+import { healthService } from "../api/services"
+import type { HealthResponse } from "../api/services/healthService"
+
+
 type Feature = {
   title: string
   desc: string
@@ -11,6 +17,18 @@ const features: Feature[] = [
 ]
 
 function Home() {
+  const [health, setHealth] = useState<HealthResponse | null>(null)
+  const [healthError, setHealthError] = useState<string | null>(null)
+
+  useEffect(() => {
+    healthService
+      .getHealth()
+      .then(setHealth)
+      .catch((e: unknown) => {
+        setHealthError(e instanceof Error ? e.message : "Error desconocido")
+      })
+  }, [])
+
   return (
     <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
       <div className="mx-auto max-w-6xl px-4 py-10">
@@ -87,6 +105,12 @@ function Home() {
           </div>
         </section>
       </div>
+      <div className="mt-6 text-sm text-[var(--muted)]">
+        {health && <p>API: OK ✅ ({health.app ?? "laravel"})</p>}
+        {healthError && <p>API: ERROR ❌ ({healthError})</p>}
+        {!health && !healthError && <p>API: comprobando…</p>}
+      </div>
+
     </main>
   )
 }
