@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('author');
+            $table->string('editorial');
             $table->unsignedSmallInteger('pages')->nullable();
             $table->text('synopsis')->nullable();
             $table->string('image')->nullable();    // Por ahora URL
