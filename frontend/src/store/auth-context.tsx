@@ -1,13 +1,14 @@
 import { createContext, useContext, useMemo, useState } from "react"
-import type { AuthState } from "../types/auth"
+import type { AuthState, Role } from "../types/auth"
 import { clearAuth, loadAuth, saveAuth } from "./authStorage"
 import { authService } from "../api/services"
 
 type AuthContextValue = {
   auth: AuthState
   isAuthenticated: boolean
-  role: AuthState["user"] extends null ? null : any
+  role: Role | null
   login: (email: string, password: string) => Promise<void>
+  register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -15,6 +16,18 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState<AuthState>(() => loadAuth())
+
+  async function register(name: string, email: string, password: string) {
+    const res = await authService.register({ name, email, password })
+
+    const next: AuthState = {
+      token: res.token,
+      user: res.user,
+    }
+
+    setAuth(next)
+    saveAuth(next)
+  }
 
   async function login(email: string, password: string) {
     const res = await authService.login({ email, password })
@@ -40,10 +53,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearAuth()
   }
 
-  const value = useMemo(() => {
+    const value = useMemo<AuthContextValue>(() => {
     const isAuthenticated = !!auth.token
     const role = auth.user?.role ?? null
-    return { auth, isAuthenticated, role, login, logout }
+
+    return {
+      auth,
+      isAuthenticated,
+      role,
+      login,
+      register,
+      logout,
+    }
   }, [auth])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
