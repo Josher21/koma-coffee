@@ -1,0 +1,33 @@
+# ======================
+# General
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Node / React / Vite
+# ======================
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-error.log*
+
+# ======================
+# Laravel / PHP
+# ======================
+vendor/
+.env
+.env.*
+storage/*.key
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# ======================
+# IDEs / Editors
+# ======================
+.vscode/
+.idea/
+*.swp
