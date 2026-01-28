@@ -63,7 +63,7 @@ function Header() {
                 </span>
               </span>
               <button
-                onClick={logout}
+                onClick={() => logout()}
                 className="px-3 py-2 rounded-lg border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--bg)]"
               >
                 Logout
