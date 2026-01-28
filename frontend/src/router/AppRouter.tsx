@@ -1,10 +1,11 @@
-import { Routes, Route, Navigate } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import Home from "../pages/Home"
 import Login from "../pages/Login"
 import Register from "../pages/Register"
 import Admin from "../pages/Admin"
 import ProtectedRoute from "./ProtectedRoute"
 import Forbidden from "../pages/Forbidden"
+import NotFound from "../pages/NotFound"
 
 function AppRouter() {
   return (
@@ -17,10 +18,9 @@ function AppRouter() {
         <Admin />
         </ProtectedRoute>
         } />
-        <Route path="/403" element={<Forbidden />} />
+      <Route path="/403" element={<Forbidden />} />
+      <Route path="*" element={<NotFound />} />
 
-      {/* Cualquier ruta desconocida -> Home (o 404 más adelante) */}
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
