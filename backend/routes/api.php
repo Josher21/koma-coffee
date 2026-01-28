@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\CategoryController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -25,4 +27,20 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         Route::get('/user',        [AuthController::class, 'user']);
     });
+});
+
+// Público (catálogo)
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/books', [BookController::class, 'index']);
+Route::get('/books/{book}', [BookController::class, 'show']);
+
+// Admin (protegido) - de momento con auth:sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    Route::post('/books', [BookController::class, 'store']);
+    Route::put('/books/{book}', [BookController::class, 'update']);
+    Route::delete('/books/{book}', [BookController::class, 'destroy']);
 });
