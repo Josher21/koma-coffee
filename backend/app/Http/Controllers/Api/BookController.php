@@ -16,7 +16,11 @@ class BookController extends Controller
 
         if ($request->filled('search')) {
             $s = $request->query('search');
-            $query->where('title', 'like', "%$s%");
+
+            $query->where(function ($q) use ($s) {
+                $q->where('title', 'like', "%$s%")
+                ->orWhere('author', 'like', "%$s%");
+            });
         }
 
         if ($request->filled('category_id')) {
@@ -24,7 +28,7 @@ class BookController extends Controller
         }
 
         return response()->json(
-            $query->paginate(10)
+            $query->paginate(12)
         );
     }
 
