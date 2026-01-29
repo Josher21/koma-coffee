@@ -15,8 +15,9 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $user = $request->user();   // usuario obtenido del token (auth:sanctum)
 
+        // si no hay usuario o no es ADMIN => 403
         if (!$user || $user->role !== 'ADMIN') {
             return response()->json(['message' => 'Forbbiden'], 403);
         }
