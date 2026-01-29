@@ -34,7 +34,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book}', [BookController::class, 'show']);
 
-// Admin (protegido) - de momento con auth:sanctum
+// Admin (protegido)  con auth:sanctum
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     // categories write
     Route::post('/categories', [CategoryController::class, 'store']);
