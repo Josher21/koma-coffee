@@ -1,8 +1,18 @@
-import { NavLink } from "react-router-dom"
-import { useAuth } from "../store/auth-context" // ajusta el nombre si lo dejaste diferente
+import { NavLink, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { useAuth } from "../store/auth-context"
 
 function Header() {
   const { isAuthenticated, auth, role, logout } = useAuth()
+
+  const navigate = useNavigate()
+  const [q, setQ] = useState("")
+
+  function onSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const s = q.trim()
+    navigate(s ? `/catalogo?search=${encodeURIComponent(s)}` : "/catalogo")
+  }
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
@@ -27,9 +37,15 @@ function Header() {
         {/* Links */}
         <nav className="hidden sm:flex items-center gap-2">
           <NavLink to="/status" className={linkClass}>Status</NavLink>
-          
-          <NavLink to="/" className={linkClass}>
-            Home
+
+          <NavLink to="/" className={linkClass}>Home</NavLink>
+
+          <NavLink to="/cafeteria" className={linkClass}>
+            Cafetería
+          </NavLink>
+
+          <NavLink to="/catalogo" className={linkClass}>
+            Catálogo
           </NavLink>
 
           {!isAuthenticated && (
@@ -50,8 +66,24 @@ function Header() {
           )}
         </nav>
 
-        {/* Área de sesión */}
+        {/* Área de sesión + búsqueda */}
         <div className="hidden sm:flex items-center gap-3">
+          {/* Buscador */}
+          <form onSubmit={onSearch} className="flex items-center gap-2">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar libros…"
+              className="w-52 rounded-lg border border-[var(--line)] bg-white px-3 py-2 text-sm"
+            />
+            <button
+              type="submit"
+              className="px-3 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] text-sm"
+            >
+              Buscar
+            </button>
+          </form>
+
           {!isAuthenticated ? (
             <span className="text-sm text-[var(--muted)]">No autenticado</span>
           ) : (
