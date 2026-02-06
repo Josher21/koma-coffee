@@ -48,6 +48,13 @@ function Header() {
             Catálogo
           </NavLink>
 
+          {isAuthenticated && (
+            <NavLink to="/reservas" className={linkClass}>
+              Mis reservas
+            </NavLink>
+          )}
+
+
           {!isAuthenticated && (
             <>
               <NavLink to="/login" className={linkClass}>

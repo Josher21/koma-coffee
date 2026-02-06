@@ -1,5 +1,6 @@
 /** Prueba paraa comprobar la llamada al backend */
 import { useEffect, useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { healthService } from "../api/services"
 import type { HealthResponse } from "../api/services/healthService"
 
@@ -19,6 +20,19 @@ const features: Feature[] = [
 function Home() {
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [healthError, setHealthError] = useState<string | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [flash, setFlash] = useState<string | null>(null)
+
+  useEffect(() => {
+    const msg = (location.state as any)?.flash
+    if (msg) {
+      setFlash(msg)
+
+      // Limpia el state para que el mensaje no reaparezca
+      navigate(".", { replace: true, state: null })
+    }
+  }, [location.state, navigate])
 
   useEffect(() => {
     healthService
@@ -30,7 +44,15 @@ function Home() {
   }, [])
 
   return (
+  
+
     <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
+      {flash && (
+        <div className="mb-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3 text-[var(--ink)]">
+          ✅ {flash}
+        </div>
+      )}
+
       <div className="mx-auto max-w-6xl px-4 py-10">
         {/* Hero */}
         <section className="rounded-2xl bg-[var(--surface)] border border-[var(--line)] p-8 md:p-10">
