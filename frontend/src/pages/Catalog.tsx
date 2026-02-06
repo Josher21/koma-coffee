@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useSearchParams, Link } from "react-router-dom"
 import { bookService, categoryService } from "../api/services"
 import type { Book, Category, Paginated } from "../types/library"
 
@@ -14,10 +14,32 @@ function Catalog() {
   const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1
 
   // 2) Estados de datos
+  type SortKey = "title" | "author" | "stock"
+  type SortDir = "asc" | "desc"
+
+  const [sort, setSort] = useState<SortKey>("title")
+  const [dir, setDir] = useState<SortDir>("asc")
   const [categories, setCategories] = useState<Category[]>([])
   const [books, setBooks] = useState<Paginated<Book> | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const sortedBooks = books
+  ? [...books.data].sort((a, b) => {
+      let result = 0
+
+      if (sort === "stock") {
+        result = a.quantity - b.quantity
+      } else {
+        const av = (sort === "title" ? a.title : a.author).toLowerCase()
+        const bv = (sort === "title" ? b.title : b.author).toLowerCase()
+        result = av.localeCompare(bv)
+      }
+
+      return dir === "asc" ? result : -result
+    })
+  : []
+
 
   // 3) Cargar categorías una vez (para el select)
   useEffect(() => {
@@ -73,13 +95,32 @@ function Catalog() {
         </p>
 
         {/* Filtros */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="mt-6 grid gap-3 sm:grid-cols-4">
           <input
             value={search}
             onChange={(e) => setParam("search", e.target.value)}
-            placeholder="Buscar por título…"
+            placeholder="Buscar por título o autor…"
             className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
           />
+
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as any)}
+            className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
+            >
+            <option value="title">Orden: Título</option>
+            <option value="author">Orden: Autor</option>
+            <option value="stock">Orden: Stock</option>
+          </select>
+
+          <select
+            value={dir}
+            onChange={(e) => setDir(e.target.value as SortDir)}
+            className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
+            >
+            <option value="asc">Ascendente</option>
+            <option value="desc">Descendente</option>
+          </select>
 
           <select
             value={categoryId ? String(categoryId) : ""}
@@ -103,25 +144,29 @@ function Catalog() {
         {books && (
           <>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {books.data.map((b) => (
+              {sortedBooks.map((b) => (
                 <article
                   key={b.id}
                   className="rounded-2xl bg-[var(--surface)] border border-[var(--line)] overflow-hidden"
                 >
-                  <div className="aspect-[16/10] bg-white">
-                    {b.image ? (
-                      <img
-                        src={b.image}
-                        alt={b.title}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="h-full grid place-items-center text-[var(--muted)]">
-                        Sin imagen
-                      </div>
-                    )}
-                  </div>
+                  {/* Card */}
+                  <Link to={`/catalogo/${b.id}`} className="block">
+                    <div className="aspect-[16/10] bg-white">
+                      {b.image ? (
+                        <img
+                          src={b.image}
+                          alt={b.title}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="h-full w-full grid place-items-center text-[var(--muted)]">
+                          Sin imagen
+                        </div>
+                      )}
+                    </div>
+                  </Link>
 
                   <div className="p-4">
                     <h3 className="font-semibold text-[var(--ink)]">{b.title}</h3>
