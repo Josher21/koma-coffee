@@ -47,6 +47,7 @@ function Home() {
   
 
     <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
+      
       {flash && (
         <div className="mb-4 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3 text-[var(--ink)]">
           ✅ {flash}

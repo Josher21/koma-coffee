@@ -2,14 +2,14 @@ import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../store/auth-context"
 
-type LocationState = { from?: { pathname: string } }
-
 function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+
+  type LocationState = { from?: string }
   const state = location.state as LocationState | null
-  const redirectTo = state?.from?.pathname ?? "/"
+  const redirectTo = state?.from ?? "/"
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -23,7 +23,7 @@ function Login() {
 
     try {
       await login(email, password)
-      navigate(redirectTo, { replace: true })
+      navigate(redirectTo, { replace: true }) // Evita que al darle a 'atrás' vuelvas al login
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error en login")
     } finally {
