@@ -11,9 +11,17 @@ export type Book = {
   pages: number | null
   synopsis: string | null
   image: string | null
+
   quantity: number
+
+  // Back de reservas
+  total_copies?: number
+  available_copies?: number
+  my_active_reservation_id?: number | null
+  is_reserved_by_me?: boolean
+
   category_id: number
-  category?: Category // viene si el backend hace eager loading
+  category?: Category
 }
 
 // Laravel paginate() devuelve algo con esta estructura
