@@ -53,6 +53,8 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
+        $book->load('category');
+
         return new BookResource($book);
     }
 

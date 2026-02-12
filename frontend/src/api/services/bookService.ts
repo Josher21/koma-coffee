@@ -7,6 +7,17 @@ export type BookQuery = {
   category_id?: number
 }
 
+export type BookUpdatePayload = {
+  title: string
+  author: string
+  editorial: string | null
+  pages: number | null
+  synopsis: string | null
+  image: string | null
+  quantity: number
+  category_id: number
+}
+
 export async function getBooks(q: BookQuery): Promise<Paginated<Book>> {
   const params = new URLSearchParams()
 
@@ -18,4 +29,14 @@ export async function getBooks(q: BookQuery): Promise<Paginated<Book>> {
   const url = `/books${qs ? `?${qs}` : ""}`
 
   return api.get<Paginated<Book>>(url, { auth: false })
+}
+
+// ✅ NUEVO: detalle
+export function getBookById(id: number): Promise<Book> {
+  return api.get<Book>(`/books/${id}`, { auth: false })
+}
+
+// ✅ NUEVO: update (solo admin)
+export function updateBook(id: number, payload: BookUpdatePayload): Promise<Book> {
+  return api.put<Book>(`/books/${id}`, payload, { auth: true })
 }

@@ -14,7 +14,8 @@ function BookDetail() {
   const [actionLoading, setActionLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const isAdmin = user?.role === "ADMIN"
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -269,6 +270,17 @@ function BookDetail() {
                   ) : "Reservar"}
                 </button>
               )}
+
+              {isAdmin && (
+                <button
+                  onClick={() => navigate(`/admin/books/${bookId}/edit`, { state: { from: location.pathname } })}
+                  className="w-full rounded-full border border-[#c8922a]/35 bg-[#c8922a]/10 px-5 py-3 text-sm font-semibold text-[#e5b56a]
+                            transition hover:bg-[#c8922a]/25 hover:border-[#c8922a] hover:text-[#f5ede0]"
+                >
+                  Editar libro <span aria-hidden>→</span>
+                </button>
+              )}
+
 
               {error && (
                 <p className="text-center text-xs text-red-400/80 font-medium">{error}</p>

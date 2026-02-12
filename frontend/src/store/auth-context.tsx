@@ -1,11 +1,12 @@
 import { createContext, useContext, useMemo, useState } from "react"
-import type { AuthState, Role } from "../types/auth"
+import type { AuthState, AuthUser, Role } from "../types/auth"
 import { clearAuth, loadAuth, saveAuth } from "./authStorage"
 import { authService } from "../api/services"
 
 type AuthContextValue = {
   auth: AuthState
   isAuthenticated: boolean
+  user: AuthUser | null
   role: Role | null
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
@@ -42,30 +43,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function logout() {
-    // intentamos avisar al backend (si falla, igualmente cerramos sesión en front)
     try {
       await authService.logout()
     } catch {
-      // silencioso por ahora
+      // silencioso
     }
 
     setAuth({ token: null, user: null })
     clearAuth()
   }
 
-    const value = useMemo<AuthContextValue>(() => {
+  const value = useMemo<AuthContextValue>(() => {
     const isAuthenticated = !!auth.token
-    const role = auth.user?.role ?? null
+    const user: AuthUser | null = auth.user ?? null
+    const role: Role | null = user?.role ?? null
 
     return {
       auth,
       isAuthenticated,
-      role,
+      user,   // ✅ FALTABA
+      role,   // ✅
       login,
       register,
       logout,
     }
-  }, [auth])
+  }, [auth, login, register, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
