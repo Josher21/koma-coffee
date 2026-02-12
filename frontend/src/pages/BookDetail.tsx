@@ -25,7 +25,6 @@ function BookDetail() {
     setError(null)
 
     try {
-      // auth opcional: con sesión añade my_active_reservation_id
       const data = await api.get<Book>(`/books/${bookId}`, { auth: isAuthenticated })
       setBook(data)
     } catch {
@@ -50,7 +49,7 @@ function BookDetail() {
 
     try {
       await reservationService.create(bookId)
-      await loadBook() // refresca botones/stock
+      await loadBook() // refresca reserva + stock + botón
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al reservar")
     } finally {
@@ -74,7 +73,7 @@ function BookDetail() {
       await reservationService.cancel(reservationId)
       await loadBook()
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al cancelar")
+      setError(e instanceof Error ? e.message : "Error al cancelar la reserva")
     } finally {
       setActionLoading(false)
     }
@@ -84,11 +83,11 @@ function BookDetail() {
   if (error) return <p className="p-6 text-red-700">{error}</p>
   if (!book) return <p className="p-6">Libro no encontrado</p>
 
-  // Compat: si aún no viene available_copies, cae a quantity
-  const available = book.available_copies ?? book.quantity
+  const available = book.available_copies ?? book.quantity ?? 0
   const hasActiveReservation = !!book.my_active_reservation_id
 
-  const canReserve = available > 0 && !hasActiveReservation
+  const canReserve = isAuthenticated && !hasActiveReservation && available > 0
+  const canCancel = isAuthenticated && hasActiveReservation
 
   return (
     <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
@@ -122,40 +121,49 @@ function BookDetail() {
               <p className="mt-5 text-sm text-[var(--ink)] leading-relaxed">{book.synopsis}</p>
             )}
 
-            {/* Botones */}
-            {!isAuthenticated && (
-              <button
-                onClick={() => navigate("/login", { state: { from: location.pathname } })}
-                className="mt-6 w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)]"
-              >
-                Inicia sesión para reservar
-              </button>
-            )}
+            {/* CTA */}
+            <div className="mt-6">
+              {!isAuthenticated && (
+                <button
+                  onClick={() => navigate("/login", { state: { from: location.pathname } })}
+                  className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)]"
+                >
+                  Inicia sesión para reservar
+                </button>
+              )}
 
-            {isAuthenticated && canReserve && (
-              <button
-                onClick={handleReserve}
-                disabled={actionLoading}
-                className="mt-6 w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] disabled:opacity-60"
-              >
-                {actionLoading ? "Reservando…" : "Reservar"}
-              </button>
-            )}
+              {canReserve && (
+                <button
+                  onClick={handleReserve}
+                  disabled={actionLoading}
+                  className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] disabled:opacity-60"
+                >
+                  {actionLoading ? "Reservando…" : "Reservar"}
+                </button>
+              )}
 
+              {canCancel && (
+                <button
+                  onClick={handleCancel}
+                  disabled={actionLoading}
+                  className="w-full px-4 py-2 rounded-lg border border-[var(--accent)] text-[var(--accent)] hover:bg-white disabled:opacity-60"
+                >
+                  {actionLoading ? "Cancelando…" : "Cancelar reserva"}
+                </button>
+              )}
+
+              {isAuthenticated && !hasActiveReservation && available === 0 && (
+                <div className="w-full px-4 py-2 rounded-lg bg-white border border-[var(--line)] text-[var(--muted)] text-center">
+                  Sin copias disponibles
+                </div>
+              )}
+            </div>
+
+            {/* Info extra (opcional, útil para debug/UX) */}
             {isAuthenticated && hasActiveReservation && (
-              <button
-                onClick={handleCancel}
-                disabled={actionLoading}
-                className="mt-6 w-full px-4 py-2 rounded-lg border border-[var(--accent)] text-[var(--accent)] hover:bg-white disabled:opacity-60"
-              >
-                {actionLoading ? "Cancelando…" : "Cancelar reserva"}
-              </button>
-            )}
-
-            {isAuthenticated && !hasActiveReservation && available === 0 && (
-              <div className="mt-6 w-full px-4 py-2 rounded-lg bg-white border border-[var(--line)] text-[var(--muted)] text-center">
-                Sin copias disponibles
-              </div>
+              <p className="mt-3 text-xs text-[var(--muted)]">
+                Tienes una reserva activa (id #{book.my_active_reservation_id})
+              </p>
             )}
           </div>
         </div>

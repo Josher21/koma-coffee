@@ -24,6 +24,16 @@ export type Book = {
   category?: Category
 }
 
+export type Reservation = {
+  id: number
+  status: "active" | "cancelled" | "returned"
+  reserved_at: string | null
+  expires_at: string | null
+  created_at: string | null
+  updated_at: string | null
+  book?: Book
+}
+
 // Laravel paginate() devuelve algo con esta estructura
 export type Paginated<T> = {
   data: T[]
@@ -31,4 +41,25 @@ export type Paginated<T> = {
   last_page: number
   per_page: number
   total: number
+}
+
+// Estructura real de paginate() con Resources
+export type LaravelPaginated<T> = {
+  data: T[]
+  links: {
+    first: string | null
+    last: string | null
+    prev: string | null
+    next: string | null
+  }
+  meta: {
+    current_page: number
+    from: number | null
+    last_page: number
+    links: Array<{ url: string | null; label: string; active: boolean }>
+    path: string
+    per_page: number
+    to: number | null
+    total: number
+  }
 }
