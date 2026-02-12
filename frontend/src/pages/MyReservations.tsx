@@ -61,34 +61,76 @@ function MyReservations() {
     return [...base].sort((a, b) => (a.status === b.status ? 0 : a.status === "active" ? -1 : 1))
   }, [reservations, onlyActive])
 
-  if (loading) return <p className="p-6">Cargando…</p>
-  if (error) return <p className="p-6 text-red-700">{error}</p>
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#120c07]">
+        <div className="mx-auto max-w-6xl px-4 py-10 pb-16">
+          <div className="rounded-3xl border border-[#c8922a]/12 bg-gradient-to-br from-[#3b1f0e]/55 to-[#1a120a]/70 p-6 text-[#f5ede0]/70">
+            Cargando…
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
-    <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-6 md:grid-cols-[260px_1fr]">
-          {/* ✅ MENÚ LATERAL (izquierda) */}
-          <aside className="rounded-2xl border border-[var(--line)] bg-white p-5 h-fit">
-            <h2 className="text-sm font-semibold text-[var(--ink)]">Filtros</h2>
+    <main className="min-h-screen bg-[#120c07]">
+      <div className="mx-auto max-w-6xl px-4 py-10 pb-16">
+        {/* Header sección */}
+        <div className="mb-2">
+          <p className="text-[0.67rem] font-medium uppercase tracking-[0.22em] text-[#c8922a]">
+            Reservas
+          </p>
+          <div className="flex items-end justify-between gap-4">
+            <h1 className="font-serif text-2xl font-bold text-[#f5ede0] md:text-3xl">
+              Mis reservas
+            </h1>
 
-            <div className="mt-4 space-y-3">
-              <label className="flex items-center gap-3 text-sm text-[var(--ink)] cursor-pointer select-none">
+            <div className="text-xs font-medium uppercase tracking-[0.14em] text-[#f5ede0]/50">
+              Mostrando{" "}
+              <span className="text-[#e5b56a]">{filteredReservations.length}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider ornamental */}
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#c8922a]/25 to-transparent" />
+          <div className="h-1.5 w-1.5 rounded-full bg-[#c8922a]/50" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#c8922a]/25 to-transparent" />
+        </div>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-200">
+            {error}
+          </div>
+        )}
+
+        <div className="grid gap-6 md:grid-cols-[280px_1fr]">
+          {/* ✅ MENÚ LATERAL */}
+          <aside className="h-fit rounded-3xl border border-[#c8922a]/12 bg-gradient-to-br from-[#3b1f0e]/45 to-[#1a120a]/65 p-5 shadow-xl shadow-black/30">
+            <h2 className="font-serif text-lg font-bold text-[#f5ede0]">Filtros</h2>
+            <p className="mt-1 text-sm font-serif italic text-[#f5ede0]/55">
+              Ajusta qué reservas quieres ver.
+            </p>
+
+            <div className="mt-5 space-y-3">
+              <label className="flex items-center gap-3 text-sm text-[#f5ede0]/80 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={!onlyActive}
                   onChange={() => setOnlyActive(false)}
-                  className="h-4 w-4"
+                  className="h-4 w-4 accent-[#c8922a]"
                 />
                 Todas
               </label>
 
-              <label className="flex items-center gap-3 text-sm text-[var(--ink)] cursor-pointer select-none">
+              <label className="flex items-center gap-3 text-sm text-[#f5ede0]/80 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={onlyActive}
                   onChange={() => setOnlyActive(true)}
-                  className="h-4 w-4"
+                  className="h-4 w-4 accent-[#c8922a]"
                 />
                 Solo activas
               </label>
@@ -96,31 +138,21 @@ function MyReservations() {
 
             <button
               onClick={() => setOnlyActive(false)}
-              className="mt-5 w-full px-3 py-2 rounded-lg border border-[var(--line)] text-sm text-[var(--muted)] hover:bg-[var(--surface)]"
+              className="mt-6 w-full rounded-full border border-[#c8922a]/25 bg-[#c8922a]/5 px-4 py-2 text-sm font-semibold text-[#e5b56a]
+                         transition hover:bg-[#c8922a]/20 hover:border-[#c8922a]/50 hover:text-[#f5ede0]"
             >
               Limpiar filtros
             </button>
           </aside>
 
-          {/* ✅ CONTENIDO (derecha) */}
+          {/* ✅ CONTENIDO */}
           <section>
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="text-2xl font-semibold text-[var(--ink)]">Mis reservas</h1>
-
-              <div className="text-sm text-[var(--muted)]">
-                Mostrando:{" "}
-                <span className="font-semibold text-[var(--ink)]">
-                  {filteredReservations.length}
-                </span>
-              </div>
-            </div>
-
             {filteredReservations.length === 0 ? (
-              <div className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 text-[var(--muted)]">
+              <div className="rounded-3xl border border-[#c8922a]/12 bg-gradient-to-br from-[#3b1f0e]/35 to-[#1a120a]/60 p-6 text-[#f5ede0]/60">
                 No hay reservas para el filtro seleccionado.
               </div>
             ) : (
-              <div className="mt-6 grid gap-4">
+              <div className="grid gap-4">
                 {filteredReservations.map((r) => {
                   const book = r.book
                   const isActive = r.status === "active"
@@ -128,56 +160,79 @@ function MyReservations() {
                   return (
                     <div
                       key={r.id}
-                      className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                      className="group relative overflow-hidden rounded-3xl border border-[#c8922a]/12 bg-gradient-to-br from-[#3b1f0e]/45 to-[#1a120a]/65 p-5
+                                 transition hover:-translate-y-0.5 hover:border-[#c8922a]/30 hover:shadow-xl hover:shadow-black/40"
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="h-20 w-14 rounded-lg overflow-hidden border border-[var(--line)] bg-white shrink-0">
-                          {book?.image ? (
-                            <img src={book.image} alt={book.title} className="h-full w-full object-cover" />
+                      {/* shimmer hover */}
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c8922a]/40 to-transparent opacity-0 transition group-hover:opacity-100" />
+
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="h-20 w-14 shrink-0 overflow-hidden rounded-xl border border-[#c8922a]/15 bg-[#f5ede0]/5">
+                            {book?.image ? (
+                              <img
+                                src={book.image}
+                                alt={book.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="grid h-full w-full place-items-center text-[0.7rem] text-[#f5ede0]/40">
+                                Sin imagen
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <p className="font-serif text-lg font-bold leading-snug text-[#f5ede0]">
+                              {book?.title ?? "Libro"}
+                            </p>
+
+                            <p className="mt-1 font-serif text-sm italic leading-relaxed text-[#f5ede0]/55">
+                              {r.reserved_at
+                                ? `Reservado: ${new Date(r.reserved_at).toLocaleString()}`
+                                : ""}
+                            </p>
+
+                            <span
+                              className={[
+                                "mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide",
+                                isActive
+                                  ? "border-[#c8922a]/35 bg-[#c8922a]/10 text-[#e5b56a]"
+                                  : "border-[#f5ede0]/15 bg-[#f5ede0]/5 text-[#f5ede0]/55",
+                              ].join(" ")}
+                            >
+                              <span
+                                className={[
+                                  "h-1.5 w-1.5 rounded-full",
+                                  isActive ? "bg-[#c8922a]" : "bg-[#f5ede0]/35",
+                                ].join(" ")}
+                                aria-hidden
+                              />
+                              {isActive ? "Activa" : "Cancelada"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2">
+                          {isActive ? (
+                            <button
+                              onClick={() => handleCancel(r.id)}
+                              disabled={actionLoadingId === r.id}
+                              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#c8922a]/35 bg-[#c8922a]/10 px-5 py-2 text-sm font-semibold text-[#e5b56a]
+                                         transition hover:bg-[#c8922a]/25 hover:border-[#c8922a] hover:text-[#f5ede0] disabled:opacity-60"
+                            >
+                              {actionLoadingId === r.id ? "Cancelando…" : "Cancelar"}{" "}
+                              <span aria-hidden>→</span>
+                            </button>
                           ) : (
-                            <div className="h-full w-full grid place-items-center text-xs text-[var(--muted)]">
-                              Sin imagen
-                            </div>
+                            <button
+                              disabled
+                              className="rounded-full border border-[#f5ede0]/10 bg-[#f5ede0]/5 px-5 py-2 text-sm font-semibold text-[#f5ede0]/45"
+                            >
+                              No editable
+                            </button>
                           )}
                         </div>
-
-                        <div>
-                          <p className="text-[var(--ink)] font-semibold">{book?.title ?? "Libro"}</p>
-
-                          <p className="text-sm text-[var(--muted)]">
-                            {r.reserved_at ? `Reservado: ${new Date(r.reserved_at).toLocaleString()}` : ""}
-                          </p>
-
-                          <span
-                            className={[
-                              "mt-2 inline-block text-xs px-2 py-1 rounded-full border",
-                              isActive
-                                ? "border-green-200 text-green-700 bg-green-50"
-                                : "border-slate-200 text-slate-700 bg-white",
-                            ].join(" ")}
-                          >
-                            {isActive ? "Activa" : "Cancelada"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 justify-end">
-                        {isActive ? (
-                          <button
-                            onClick={() => handleCancel(r.id)}
-                            disabled={actionLoadingId === r.id}
-                            className="px-4 py-2 rounded-lg border border-[var(--accent)] text-[var(--accent)] hover:bg-white disabled:opacity-60"
-                          >
-                            {actionLoadingId === r.id ? "Cancelando…" : "Cancelar"}
-                          </button>
-                        ) : (
-                          <button
-                            disabled
-                            className="px-4 py-2 rounded-lg border border-[var(--line)] text-[var(--muted)]"
-                          >
-                            No editable
-                          </button>
-                        )}
                       </div>
                     </div>
                   )
