@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import type { LaravelPaginated, Reservation } from "../types/library"
+import type { Reservation } from "../types/library"
 import { useAuth } from "../store/auth-context"
 import { reservationService } from "../api/services/reservationService"
 
@@ -8,13 +8,12 @@ function MyReservations() {
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
 
-  const [data, setData] = useState<LaravelPaginated<Reservation> | null>(null)
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(false)
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
 
-  async function loadReservations(p = page) {
+  async function loadReservations() {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: "/reservas" } })
       return
@@ -24,8 +23,8 @@ function MyReservations() {
     setError(null)
 
     try {
-      const res = await reservationService.me(p)
-      setData(res)
+      const res = await reservationService.me()
+      setReservations(res)
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudieron cargar tus reservas")
     } finally {
@@ -34,9 +33,8 @@ function MyReservations() {
   }
 
   useEffect(() => {
-    loadReservations(page)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, isAuthenticated])
+    loadReservations()
+  }, [isAuthenticated])
 
   async function handleCancel(reservationId: number) {
     setActionLoadingId(reservationId)
@@ -44,7 +42,7 @@ function MyReservations() {
 
     try {
       await reservationService.cancel(reservationId)
-      await loadReservations(page)
+      await loadReservations()
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al cancelar la reserva")
     } finally {
@@ -55,19 +53,15 @@ function MyReservations() {
   if (loading) return <p className="p-6">Cargando…</p>
   if (error) return <p className="p-6 text-red-700">{error}</p>
 
-  const reservations = data?.data ?? []
-
   return (
     <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold text-[var(--ink)]">Mis reservas</h1>
 
-          {data?.meta && (
-            <div className="text-sm text-[var(--muted)]">
-              Total: <span className="font-semibold text-[var(--ink)]">{data.meta.total}</span>
-            </div>
-          )}
+          <div className="text-sm text-[var(--muted)]">
+            Total: <span className="font-semibold text-[var(--ink)]">{reservations.length}</span>
+          </div>
         </div>
 
         {reservations.length === 0 ? (
@@ -87,6 +81,7 @@ function MyReservations() {
                 >
                   <div className="flex items-start gap-4">
                     <div className="h-20 w-14 rounded-lg overflow-hidden border border-[var(--line)] bg-white shrink-0">
+                      {/* tu API devuelve cover_url, no image */}
                       {book?.image ? (
                         <img src={book.image} alt={book.title} className="h-full w-full object-cover" />
                       ) : (
@@ -98,9 +93,9 @@ function MyReservations() {
 
                     <div>
                       <p className="text-[var(--ink)] font-semibold">{book?.title ?? "Libro"}</p>
+
                       <p className="text-sm text-[var(--muted)]">
-                        {book?.author ? book.author : "Autor desconocido"}
-                        {r.reserved_at ? ` · Reservado: ${new Date(r.reserved_at).toLocaleString()}` : ""}
+                        {r.reserved_at ? `Reservado: ${new Date(r.reserved_at).toLocaleString()}` : ""}
                       </p>
 
                       <span
@@ -137,32 +132,6 @@ function MyReservations() {
                 </div>
               )
             })}
-          </div>
-        )}
-
-        {/* Paginación simple */}
-        {data?.meta && data.meta.last_page > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={data.meta.current_page <= 1}
-              className="px-4 py-2 rounded-lg border border-[var(--line)] bg-white disabled:opacity-50"
-            >
-              Anterior
-            </button>
-
-            <span className="text-sm text-[var(--muted)]">
-              Página <span className="font-semibold text-[var(--ink)]">{data.meta.current_page}</span> de{" "}
-              <span className="font-semibold text-[var(--ink)]">{data.meta.last_page}</span>
-            </span>
-
-            <button
-              onClick={() => setPage((p) => Math.min(data.meta.last_page, p + 1))}
-              disabled={data.meta.current_page >= data.meta.last_page}
-              className="px-4 py-2 rounded-lg border border-[var(--line)] bg-white disabled:opacity-50"
-            >
-              Siguiente
-            </button>
           </div>
         )}
       </div>
