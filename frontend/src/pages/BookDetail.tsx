@@ -123,26 +123,8 @@ function BookDetail() {
 
             {/* CTA */}
             <div className="mt-6">
-              {!isAuthenticated && (
-                <button
-                  onClick={() => navigate("/login", { state: { from: location.pathname } })}
-                  className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)]"
-                >
-                  Inicia sesión para reservar
-                </button>
-              )}
-
-              {canReserve && (
-                <button
-                  onClick={handleReserve}
-                  disabled={actionLoading}
-                  className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] disabled:opacity-60"
-                >
-                  {actionLoading ? "Reservando…" : "Reservar"}
-                </button>
-              )}
-
-              {canCancel && (
+              {/* 1) Si ya tienes reserva activa => prioridad: cancelar */}
+              {isAuthenticated && hasActiveReservation && (
                 <button
                   onClick={handleCancel}
                   disabled={actionLoading}
@@ -152,10 +134,35 @@ function BookDetail() {
                 </button>
               )}
 
+              {/* 2) Si NO estás logueado y NO tienes reserva (obvio) */}
+              {!isAuthenticated && !hasActiveReservation && (
+                <button
+                  onClick={() => navigate("/login", { state: { from: location.pathname } })}
+                  className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)]"
+                >
+                  Inicia sesión para reservar
+                </button>
+              )}
+
+              {/* 3) Si estás logueado, no tienes reserva y NO hay stock => Agotado */}
               {isAuthenticated && !hasActiveReservation && available === 0 && (
-                <div className="w-full px-4 py-2 rounded-lg bg-white border border-[var(--line)] text-[var(--muted)] text-center">
-                  Sin copias disponibles
-                </div>
+                <button
+                  disabled
+                  className="w-full px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 cursor-not-allowed"
+                >
+                  Agotado
+                </button>
+              )}
+
+              {/* 4) Si estás logueado, no tienes reserva y hay stock => Reservar */}
+              {isAuthenticated && !hasActiveReservation && available > 0 && (
+                <button
+                  onClick={handleReserve}
+                  disabled={actionLoading}
+                  className="w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] disabled:opacity-60"
+                >
+                  {actionLoading ? "Reservando…" : "Reservar"}
+                </button>
               )}
             </div>
 

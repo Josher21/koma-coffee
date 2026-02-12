@@ -19,19 +19,21 @@ class BookController extends Controller
             $s = $request->query('search');
 
             $query->where(function ($q) use ($s) {
-                $q->where('title', 'like', "%$s%")
-                ->orWhere('author', 'like', "%$s%");
+                $q->where('title', 'like', "%{$s}%")
+                ->orWhere('author', 'like', "%{$s}%");
             });
         }
 
         if ($request->filled('category_id')) {
-            $query->where('categoria_id', $request->query('category_id'));
+            // ✅ importante: column name debe ser category_id (o el que tengas en BD)
+            $query->where('category_id', $request->query('category_id'));
         }
 
         return response()->json(
             $query->paginate(12)
         );
     }
+
 
     public function store(StoreBookRequest $request)
     {

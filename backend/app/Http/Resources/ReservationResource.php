@@ -23,8 +23,7 @@ class ReservationResource extends JsonResource
                 return [
                     'id' => $this->book->id,
                     'title' => $this->book->title,
-                    // añade lo que necesites para la UI:
-                    'cover_url' => $this->book->cover_url ?? null,
+                    'image' => $this->book->image ?? null,
                     'available_copies' => $this->book->available_copies ?? null,
                     'total_copies' => $this->book->total_copies ?? null,
                 ];
