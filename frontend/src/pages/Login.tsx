@@ -1,14 +1,13 @@
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../store/auth-context"
 
-function Login() {
+export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
-  type LocationState = { from?: string }
-  const state = location.state as LocationState | null
+  const state = location.state as { from?: string } | null
   const redirectTo = state?.from ?? "/"
 
   const [email, setEmail] = useState("")
@@ -20,10 +19,9 @@ function Login() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-
     try {
       await login(email, password)
-      navigate(redirectTo, { replace: true }) // Evita que al darle a 'atrás' vuelvas al login
+      navigate(redirectTo, { replace: true })
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error en login")
     } finally {
@@ -32,59 +30,56 @@ function Login() {
   }
 
   return (
-    <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-[var(--ink)]">Login</h1>
-        <p className="mt-2 text-[var(--muted)]">
-          Login real contra Laravel (Sanctum token). Te redirigimos a:{" "}
-          <span className="font-semibold text-[var(--ink)]">{redirectTo}</span>
-        </p>
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center">
+      <div className="mx-auto w-full max-w-md px-4">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-sm">
+          <h1 className="text-2xl font-extrabold text-white">Iniciar sesión</h1>
+          <p className="text-white/70 mt-1">Accede para comprar, guardar favoritos y reservar.</p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 max-w-md rounded-2xl bg-[var(--surface)] border border-[var(--line)] p-6"
-        >
-          <label className="block text-sm font-semibold text-[var(--ink)]">
-            Email
+          {error && (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-5 space-y-3">
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
-              className="mt-2 w-full rounded-lg border border-[var(--line)] bg-white p-2"
-              placeholder="jose@koma.local"
+              placeholder="Email"
+              className="w-full px-4 py-3 rounded-2xl bg-white/10 border border-white/10 text-white placeholder:text-white/50
+                         focus:outline-none focus:ring-2 focus:ring-white/20"
               required
             />
-          </label>
-
-          <label className="mt-4 block text-sm font-semibold text-[var(--ink)]">
-            Password
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
-              className="mt-2 w-full rounded-lg border border-[var(--line)] bg-white p-2"
-              placeholder="••••••"
+              placeholder="Contraseña"
+              className="w-full px-4 py-3 rounded-2xl bg-white/10 border border-white/10 text-white placeholder:text-white/50
+                         focus:outline-none focus:ring-2 focus:ring-white/20"
               required
             />
-          </label>
 
-          {error && (
-            <p className="mt-4 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+            <button
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-2xl bg-[var(--accent)] text-white font-semibold
+                         hover:bg-[var(--accent-2)] disabled:opacity-60 transition"
+            >
+              {loading ? "Entrando…" : "Entrar"}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 w-full px-4 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] disabled:opacity-60"
-          >
-            {loading ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
+          {/* ✅ Link de registro dentro del login */}
+          <p className="mt-4 text-sm text-white/70">
+            ¿No tienes cuenta?{" "}
+            <Link to="/register" className="text-white font-semibold hover:underline">
+              Regístrate aquí
+            </Link>
+          </p>
+        </div>
       </div>
     </main>
   )
 }
-
-export default Login
