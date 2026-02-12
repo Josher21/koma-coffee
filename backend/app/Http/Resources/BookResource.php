@@ -27,16 +27,24 @@ class BookResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'author' => $this->author ?? null,
-            'image' => $this->book->image ?? null,
 
+            'title' => $this->title,
+            'author' => $this->author,
+            'editorial' => $this->editorial,
+            'pages' => $this->pages,
+            'synopsis' => $this->synopsis,
+            'image' => $this->image,
+
+            'quantity' => $this->quantity,
+            'category_id' => $this->category_id,
+
+            // Campos “extra” que ya estabas devolviendo
             'total_copies' => $this->total_copies,
             'available_copies' => $this->available_copies,
 
-            // 👇 Campos clave para React
-            'my_active_reservation_id' => $myReservationId,
-            'is_reserved_by_me' => (bool) $myReservationId,
+            // Si los calculas en el controlador, se devolverán aquí también
+            'my_active_reservation_id' => $this->my_active_reservation_id ?? null,
+            'is_reserved_by_me' => $this->is_reserved_by_me ?? false,
         ];
     }
 }

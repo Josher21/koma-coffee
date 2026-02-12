@@ -9,6 +9,7 @@ import NotFound from "../pages/NotFound"
 import Catalog from "../pages/Catalog"
 import MyReservations from "../pages/MyReservations"
 import BookDetail from "../pages/BookDetail"
+import BookEdit from "../pages/BookEdit"
 
 function AppRouter() {
   return (
@@ -23,6 +24,14 @@ function AppRouter() {
         <Admin />
         </ProtectedRoute>
         } />
+      <Route
+        path="/admin/books/:id/edit"
+        element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <BookEdit />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/403" element={<Forbidden />} />
       <Route path="/reservas" element={<MyReservations />} />
 

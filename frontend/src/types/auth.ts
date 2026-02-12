@@ -1,10 +1,10 @@
-export type Role = "USER" | "ADMIN"
+export type Role = "ADMIN" | "USER"
 
 export type AuthUser = {
   id: number
   name: string
   email: string
-  role: Role
+  role: Role // ✅ no string
 }
 
 export type AuthState = {
