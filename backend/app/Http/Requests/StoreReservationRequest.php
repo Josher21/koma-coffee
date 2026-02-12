@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreReservationRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreReservationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check(); // Protegido además por middleware
     }
 
     /**
@@ -22,7 +23,7 @@ class StoreReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'book_id' => ['required', 'integer', 'exists:book_id'],
         ];
     }
 }

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ReservationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -26,6 +27,10 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout',     [AuthController::class, 'logout']);
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         Route::get('/user',        [AuthController::class, 'user']);
+        Route::post('/reservations', [ReservationController::class, 'store']);
+        Route::get('/reservations/me', [ReservationController::class, 'me']);
+
+        Route::patch('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel']);
     });
 });
 
