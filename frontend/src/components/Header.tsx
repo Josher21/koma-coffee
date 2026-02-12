@@ -16,8 +16,10 @@ function Header() {
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      "px-3 py-2 rounded-lg",
-      isActive ? "bg-[var(--bg)] text-[var(--ink)]" : "text-[var(--ink)] hover:bg-[var(--bg)]",
+      "px-3 py-2 rounded-lg transition",
+      isActive
+        ? "bg-[var(--bg)] text-[var(--ink)]"
+        : "text-[var(--ink)] hover:bg-[var(--bg)]",
     ].join(" ")
 
   return (
@@ -36,8 +38,7 @@ function Header() {
 
         {/* Links */}
         <nav className="hidden sm:flex items-center gap-2">
-          <NavLink to="/status" className={linkClass}>Status</NavLink>
-
+          {/* ✅ Quitamos Status */}
           <NavLink to="/" className={linkClass}>Home</NavLink>
 
           <NavLink to="/cafeteria" className={linkClass}>
@@ -52,18 +53,6 @@ function Header() {
             <NavLink to="/reservas" className={linkClass}>
               Mis reservas
             </NavLink>
-          )}
-
-
-          {!isAuthenticated && (
-            <>
-              <NavLink to="/login" className={linkClass}>
-                Login
-              </NavLink>
-              <NavLink to="/register" className={linkClass}>
-                Registro
-              </NavLink>
-            </>
           )}
 
           {isAuthenticated && role === "ADMIN" && (
@@ -91,8 +80,14 @@ function Header() {
             </button>
           </form>
 
+          {/* ✅ Un solo botón de login a la derecha */}
           {!isAuthenticated ? (
-            <span className="text-sm text-[var(--muted)]">No autenticado</span>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-3 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] text-sm"
+            >
+              Login
+            </button>
           ) : (
             <>
               <span className="text-sm text-[var(--muted)]">
@@ -101,6 +96,7 @@ function Header() {
                   {role}
                 </span>
               </span>
+
               <button
                 onClick={() => logout()}
                 className="px-3 py-2 rounded-lg border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--bg)]"
