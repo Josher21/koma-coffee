@@ -23,7 +23,7 @@ class StoreReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'book_id' => ['required', 'integer', 'exists:book_id'],
+            'book_id' => ['required', 'integer', 'exists:books,id'],
         ];
     }
 }
