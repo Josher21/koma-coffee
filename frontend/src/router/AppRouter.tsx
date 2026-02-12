@@ -9,12 +9,14 @@ import NotFound from "../pages/NotFound"
 import ApiStatus from "../pages/ApiStatus"
 import Catalog from "../pages/Catalog"
 import MyReservations from "../pages/MyReservations"
+import BookDetail from "../pages/BookDetail"
 
 function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/catalogo" element={<Catalog />} />
+      <Route path="/catalogo/:id" element={<BookDetail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin" element={

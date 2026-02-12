@@ -1,224 +1,195 @@
 import { useEffect, useState } from "react"
-import { useSearchParams, Link } from "react-router-dom"
-import { bookService, categoryService } from "../api/services"
-import type { Book, Category, Paginated } from "../types/library"
+import type { Book, Category } from "../types/library"
+import { api } from "../api/apiClient"
+import { useAuth } from "../store/auth-context"
+import BookCard from "../components/BookCard"
 
-function Catalog() {
-  const [searchParams, setSearchParams] = useSearchParams()
+type Paginated<T> = {
+  data: T[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+}
 
-  // 1) Leemos estado desde la URL
-  const search = searchParams.get("search") ?? ""
-  const categoryId = searchParams.get("category_id")
-    ? Number(searchParams.get("category_id"))
-    : 0
-  const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1
+export default function Catalogo() {
+  const { isAuthenticated } = useAuth()
 
-  // 2) Estados de datos
-  type SortKey = "title" | "author" | "stock"
-  type SortDir = "asc" | "desc"
-
-  const [sort, setSort] = useState<SortKey>("title")
-  const [dir, setDir] = useState<SortDir>("asc")
   const [categories, setCategories] = useState<Category[]>([])
-  const [books, setBooks] = useState<Paginated<Book> | null>(null)
+  const [pageData, setPageData] = useState<Paginated<Book> | null>(null)
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const sortedBooks = books
-  ? [...books.data].sort((a, b) => {
-      let result = 0
+  // filtros
+  const [search, setSearch] = useState("")
+  const [categoryId, setCategoryId] = useState<number | "">("")
 
-      if (sort === "stock") {
-        result = a.quantity - b.quantity
-      } else {
-        const av = (sort === "title" ? a.title : a.author).toLowerCase()
-        const bv = (sort === "title" ? b.title : b.author).toLowerCase()
-        result = av.localeCompare(bv)
-      }
+  // paginación
+  const [page, setPage] = useState(1)
 
-      return dir === "asc" ? result : -result
-    })
-  : []
+  const books = pageData?.data ?? []
+  const canPrev = (pageData?.current_page ?? 1) > 1
+  const canNext = (pageData?.current_page ?? 1) < (pageData?.last_page ?? 1)
 
+  async function loadCategories() {
+    try {
+      const res = await api.get<Category[]>("/categories", { auth: false })
+      setCategories(res)
+    } catch {
+      setCategories([])
+    }
+  }
 
-  // 3) Cargar categorías una vez (para el select)
-  useEffect(() => {
-    categoryService.getCategories().then(setCategories).catch(() => {})
-  }, [])
+  function buildQuery() {
+    const params = new URLSearchParams()
+    params.set("page", String(page))
 
-  // 4) Cargar libros cada vez que cambian filtros/página
-  useEffect(() => {
+    if (search.trim()) params.set("search", search.trim())
+    if (categoryId !== "") params.set("category_id", String(categoryId))
+
+    return params.toString()
+  }
+
+  async function loadBooks() {
     setLoading(true)
     setError(null)
 
-    bookService
-      .getBooks({
-        page,
-        search: search || undefined,
-        category_id: categoryId || undefined,
-      })
-      .then(setBooks)
-      .catch((e: unknown) =>
-        setError(e instanceof Error ? e.message : "Error cargando catálogo")
-      )
-      .finally(() => setLoading(false))
-  }, [page, search, categoryId])
-
-  // helper: actualiza parámetros y resetea page si cambias filtro
-  function setParam(key: string, value: string) {
-    const next = new URLSearchParams(searchParams)
-
-    if (!value) next.delete(key)
-    else next.set(key, value)
-
-    // si cambias filtros, vuelve a página 1
-    if (key !== "page") next.set("page", "1")
-
-    setSearchParams(next)
+    try {
+      const qs = buildQuery()
+      const res = await api.get<Paginated<Book>>(`/books?${qs}`, { auth: isAuthenticated })
+      setPageData(res)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo cargar el catálogo")
+      setPageData(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  function goToPage(n: number) {
-    const next = new URLSearchParams(searchParams)
-    next.set("page", String(n))
-    setSearchParams(next)
-  }
+  // cargar categorías una vez
+  useEffect(() => {
+    loadCategories()
+  }, [])
 
-  const canPrev = books ? books.current_page > 1 : false
-  const canNext = books ? books.current_page < books.last_page : false
+  // cuando cambian filtros, volver a página 1
+  useEffect(() => {
+    setPage(1)
+  }, [search, categoryId])
+
+  // cargar libros cuando cambia page/filtros/login
+  useEffect(() => {
+    loadBooks()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, isAuthenticated, search, categoryId])
+
+  function clearFilters() {
+    setSearch("")
+    setCategoryId("")
+    setPage(1)
+  }
 
   return (
     <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-[var(--ink)]">Catálogo</h1>
-        <p className="mt-2 text-[var(--muted)]">
-          Búsqueda, filtros y paginación leyendo la URL (SPA real).
-        </p>
+        <div className="grid gap-6 md:grid-cols-[260px_1fr]">
+          {/* Filtros */}
+          <aside className="rounded-2xl border border-[var(--line)] bg-white p-5 h-fit">
+            <h2 className="text-sm font-semibold text-[var(--ink)]">Filtros</h2>
 
-        {/* Filtros */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-4">
-          <input
-            value={search}
-            onChange={(e) => setParam("search", e.target.value)}
-            placeholder="Buscar por título o autor…"
-            className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
-          />
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="text-xs text-[var(--muted)]">Buscar (título o autor)</label>
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Ej: Naruto, Urasawa..."
+                  className="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] bg-white"
+                />
+              </div>
 
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as any)}
-            className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
-            >
-            <option value="title">Orden: Título</option>
-            <option value="author">Orden: Autor</option>
-            <option value="stock">Orden: Stock</option>
-          </select>
-
-          <select
-            value={dir}
-            onChange={(e) => setDir(e.target.value as SortDir)}
-            className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
-            >
-            <option value="asc">Ascendente</option>
-            <option value="desc">Descendente</option>
-          </select>
-
-          <select
-            value={categoryId ? String(categoryId) : ""}
-            onChange={(e) => setParam("category_id", e.target.value)}
-            className="w-full rounded-lg border border-[var(--line)] bg-white p-2"
-          >
-            <option value="">Todas las categorías</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Estado */}
-        {loading && <p className="mt-6 text-[var(--muted)]">Cargando…</p>}
-        {error && <p className="mt-6 text-red-700">{error}</p>}
-
-        {/* Grid */}
-        {books && (
-          <>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {sortedBooks.map((b) => (
-                <article
-                  key={b.id}
-                  className="rounded-2xl bg-[var(--surface)] border border-[var(--line)] overflow-hidden"
+              <div>
+                <label className="text-xs text-[var(--muted)]">Categoría</label>
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : "")}
+                  className="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] bg-white"
                 >
-                  {/* Card */}
-                  <Link to={`/catalogo/${b.id}`} className="block">
-                    <div className="aspect-[16/10] bg-white">
-                      {b.image ? (
-                        <img
-                          src={b.image}
-                          alt={b.title}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ) : (
-                        <div className="h-full w-full grid place-items-center text-[var(--muted)]">
-                          Sin imagen
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+                  <option value="">Todas</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                  <div className="p-4">
-                    <h3 className="font-semibold text-[var(--ink)]">{b.title}</h3>
-                    <p className="text-sm text-[var(--muted)] mt-1">
-                      {b.author} · {b.editorial ?? "Editorial N/D"}
-                    </p>
-                    <p className="text-sm text-[var(--muted)] mt-2">
-                      Stock:{" "}
-                      <span className="text-[var(--ink)] font-semibold">
-                        {b.quantity}
-                      </span>
-                      {b.category?.name ? ` · ${b.category.name}` : ""}
-                    </p>
-                  </div>
-                </article>
+              <button
+                onClick={clearFilters}
+                className="w-full px-3 py-2 rounded-lg border border-[var(--line)] text-sm text-[var(--muted)] hover:bg-[var(--surface)]"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </aside>
+
+          {/* Contenido */}
+          <section>
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="text-2xl font-semibold text-[var(--ink)]">Catálogo</h1>
+
+              {pageData && (
+                <div className="text-sm text-[var(--muted)]">
+                  Total: <span className="font-semibold text-[var(--ink)]">{pageData.total}</span>
+                </div>
+              )}
+            </div>
+
+            {loading && <p className="mt-6">Cargando…</p>}
+            {error && <p className="mt-6 text-red-700">{error}</p>}
+
+            {!loading && !error && books.length === 0 && (
+              <div className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 text-[var(--muted)]">
+                No hay libros con esos filtros.
+              </div>
+            )}
+
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {books.map((b) => (
+                <BookCard key={b.id} book={b} onReserved={loadBooks} />
               ))}
             </div>
 
-            {/* Paginación */}
-            <div className="mt-8 flex items-center justify-between">
-              <button
-                disabled={!canPrev}
-                onClick={() => goToPage(page - 1)}
-                className="px-4 py-2 rounded-lg border border-[var(--line)] disabled:opacity-50 hover:bg-[var(--surface)]"
-              >
-                Anterior
-              </button>
+            {/* Paginación: ocultar flechas en primera/última */}
+            {pageData && pageData.last_page > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-3">
+                {canPrev && (
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="px-4 py-2 rounded-lg border border-[var(--line)] bg-white"
+                  >
+                    ← Anterior
+                  </button>
+                )}
 
-              <p className="text-sm text-[var(--muted)]">
-                Página{" "}
-                <span className="font-semibold text-[var(--ink)]">
-                  {books.current_page}
-                </span>{" "}
-                de{" "}
-                <span className="font-semibold text-[var(--ink)]">
-                  {books.last_page}
+                <span className="text-sm text-[var(--muted)]">
+                  Página <span className="font-semibold text-[var(--ink)]">{pageData.current_page}</span> de{" "}
+                  <span className="font-semibold text-[var(--ink)]">{pageData.last_page}</span>
                 </span>
-              </p>
 
-              <button
-                disabled={!canNext}
-                onClick={() => goToPage(page + 1)}
-                className="px-4 py-2 rounded-lg border border-[var(--line)] disabled:opacity-50 hover:bg-[var(--surface)]"
-              >
-                Siguiente
-              </button>
-            </div>
-          </>
-        )}
+                {canNext && (
+                  <button
+                    onClick={() => setPage((p) => Math.min(pageData.last_page, p + 1))}
+                    className="px-4 py-2 rounded-lg border border-[var(--line)] bg-white"
+                  >
+                    Siguiente →
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </main>
   )
 }
-
-export default Catalog
