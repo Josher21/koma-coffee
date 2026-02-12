@@ -10,6 +10,7 @@ import Catalog from "../pages/Catalog"
 import MyReservations from "../pages/MyReservations"
 import BookDetail from "../pages/BookDetail"
 import BookEdit from "../pages/BookEdit"
+import CoffeeList from "../pages/CoffeeList"
 
 function AppRouter() {
   return (
@@ -34,6 +35,7 @@ function AppRouter() {
       />
       <Route path="/403" element={<Forbidden />} />
       <Route path="/reservas" element={<MyReservations />} />
+      <Route path="/coffee-list" element={<CoffeeList />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

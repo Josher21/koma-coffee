@@ -27,19 +27,13 @@ function Header() {
 
         {/* ── Marca ── */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#c8922a] to-[#a0671c] text-[#120c07] grid place-items-center font-black text-base shadow-lg shadow-[#c8922a]/25">
-            K
-          </div>
-          <div className="leading-tight">
-            <p className="font-serif font-bold text-sm text-[#f5ede0] leading-none">Koma Coffee</p>
-            <p className="text-[0.67rem] text-[#c8922a]/70 tracking-wide mt-0.5">Café + cultura cómic</p>
-          </div>
+          <img src="/koma-coffee_logo.png" alt="Koma Coffee logo" className="h-15 w-auto"></img>
         </div>
 
         {/* ── Nav links ── */}
         <nav className="hidden sm:flex items-center gap-1">
           <NavLink to="/" className={linkClass} end>Home</NavLink>
-          <NavLink to="/cafeteria" className={linkClass}>Cafetería</NavLink>
+          <NavLink to="/coffee-list" className={linkClass}>Cafetería</NavLink>
           <NavLink to="/catalogo" className={linkClass}>Catálogo</NavLink>
           {isAuthenticated && (
             <NavLink to="/reservas" className={linkClass}>Mis reservas</NavLink>
