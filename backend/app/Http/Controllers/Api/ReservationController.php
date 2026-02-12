@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\Reservation;
 use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ReservationResource;
 
 class ReservationController extends Controller
 {
@@ -72,7 +73,7 @@ class ReservationController extends Controller
 
             return response()->json([
                 'message' => 'Reserva creada correctamente.',
-                'data' => $reservation->load('book'),
+                'data' => new ReservationResource($reservation->load('book')),
             ], 201);
 
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
@@ -92,7 +93,7 @@ class ReservationController extends Controller
             ->orderByDesc('reserved_at')
             ->paginate(10);
 
-        return response()->json($reservations);
+        return response()->json(ReservationResource::collection($reservations));
     }
 
     public function cancel(Request $request, Reservation $reservation): JsonResponse
@@ -122,9 +123,8 @@ class ReservationController extends Controller
                 // si ya fue cancelada por otro proceso
                 return;
             }
-
-            $res->status = 'cancelled';
-            $res->save();
+            
+            $res->update(['status' => 'cancelled']);
 
             // devolver la copia al stock
             Book::query()
@@ -132,8 +132,11 @@ class ReservationController extends Controller
                 ->increment('available_copies', 1);
         });
 
+        $reservation->refresh()->load('book');
+
         return response()->json([
             'message' => 'Reserva cancelada correctamente.',
+            'data' => new ReservationResource($reservation),
         ]);
     }
 
