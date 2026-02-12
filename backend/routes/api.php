@@ -27,11 +27,14 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout',     [AuthController::class, 'logout']);
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         Route::get('/user',        [AuthController::class, 'user']);
-        Route::post('/reservations', [ReservationController::class, 'store']);
-        Route::get('/reservations/me', [ReservationController::class, 'me']);
-
-        Route::patch('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel']);
     });
+});
+
+// Reservas fuera de /auth
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reservations', [ReservationController::class, 'store']);
+    Route::get('/reservations/me', [ReservationController::class, 'me']);
+    Route::patch('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel']);
 });
 
 // Público (catálogo)

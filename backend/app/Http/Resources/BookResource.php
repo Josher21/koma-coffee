@@ -5,12 +5,13 @@ namespace App\Http\Resources;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class BookResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $user = $request->user();
+        $user = Auth::guard('sanctum')->user();
 
         // Por defecto: si no hay usuario autenticado
         $myReservationId = null;
