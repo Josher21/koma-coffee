@@ -8,6 +8,7 @@ import Forbidden from "../pages/Forbidden"
 import NotFound from "../pages/NotFound"
 import ApiStatus from "../pages/ApiStatus"
 import Catalog from "../pages/Catalog"
+import MyReservations from "../pages/MyReservations"
 
 function AppRouter() {
   return (
@@ -23,6 +24,7 @@ function AppRouter() {
         } />
       <Route path="/403" element={<Forbidden />} />
       <Route path="/status" element={<ApiStatus />} />
+      <Route path="/reservas" element={<MyReservations />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
