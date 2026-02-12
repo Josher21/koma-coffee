@@ -240,9 +240,9 @@ export default function BookEdit() {
                     required
                   >
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id} className="bg-[#120c07]">
-                        {"name" in c ? (c as any).name : `Categoría ${c.id}`}
-                      </option>
+                        <option key={c.id} value={c.id} className="bg-[#120c07]">
+                            {c.name}
+                        </option>
                     ))}
                   </select>
                 </Field>
