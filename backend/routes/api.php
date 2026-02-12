@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\Api\AdminReservationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,13 +45,27 @@ Route::get('/books/{book}', [BookController::class, 'show']);
 
 // Admin (protegido)  con auth:sanctum
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    // categories write
+
+    // ==============================
+    // CATEGORIES (WRITE)
+    // ==============================
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
-    // books write
+    // ==============================
+    // BOOKS (WRITE)
+    // ==============================
     Route::post('/books', [BookController::class, 'store']);
     Route::put('/books/{book}', [BookController::class, 'update']);
     Route::delete('/books/{book}', [BookController::class, 'destroy']);
+
+    // ==============================
+    // ADMIN RESERVATIONS
+    // ==============================
+    Route::prefix('admin')->group(function () {
+        Route::get('/reservas', [AdminReservationController::class, 'index']);
+        Route::post('/reservas/{reservation}/cancel', [AdminReservationController::class, 'cancel']);
+    });
+
 });
