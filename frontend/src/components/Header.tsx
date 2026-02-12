@@ -4,7 +4,6 @@ import { useAuth } from "../store/auth-context"
 
 function Header() {
   const { isAuthenticated, auth, role, logout } = useAuth()
-
   const navigate = useNavigate()
   const [q, setQ] = useState("")
 
@@ -16,53 +15,41 @@ function Header() {
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      "px-3 py-2 rounded-lg transition",
+      "px-3 py-1.5 rounded-full text-sm font-medium transition",
       isActive
-        ? "bg-[var(--bg)] text-[var(--ink)]"
-        : "text-[var(--ink)] hover:bg-[var(--bg)]",
+        ? "bg-[#c8922a]/20 text-[#e5b56a] border border-[#c8922a]/40"
+        : "text-[#f5ede0]/60 hover:text-[#f5ede0] hover:bg-[#f5ede0]/8",
     ].join(" ")
 
   return (
-    <header className="w-full border-b border-[var(--line)] bg-[var(--surface)]">
-      <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-        {/* Marca */}
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-[var(--ink)] text-white grid place-items-center font-semibold">
+    <header className="sticky top-0 z-50 w-full border-b border-[#5c3317]/35 bg-[#1a0f06]/95 backdrop-blur-sm">
+      <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
+
+        {/* ── Marca ── */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#c8922a] to-[#a0671c] text-[#120c07] grid place-items-center font-black text-base shadow-lg shadow-[#c8922a]/25">
             K
           </div>
           <div className="leading-tight">
-            <p className="text-[var(--ink)] font-semibold">Koma Coffee</p>
-            <p className="text-sm text-[var(--muted)]">Café + cultura cómic</p>
+            <p className="font-serif font-bold text-sm text-[#f5ede0] leading-none">Koma Coffee</p>
+            <p className="text-[0.67rem] text-[#c8922a]/70 tracking-wide mt-0.5">Café + cultura cómic</p>
           </div>
         </div>
 
-        {/* Links */}
-        <nav className="hidden sm:flex items-center gap-2">
-          {/* ✅ Quitamos Status */}
-          <NavLink to="/" className={linkClass}>Home</NavLink>
-
-          <NavLink to="/cafeteria" className={linkClass}>
-            Cafetería
-          </NavLink>
-
-          <NavLink to="/catalogo" className={linkClass}>
-            Catálogo
-          </NavLink>
-
+        {/* ── Nav links ── */}
+        <nav className="hidden sm:flex items-center gap-1">
+          <NavLink to="/" className={linkClass} end>Home</NavLink>
+          <NavLink to="/cafeteria" className={linkClass}>Cafetería</NavLink>
+          <NavLink to="/catalogo" className={linkClass}>Catálogo</NavLink>
           {isAuthenticated && (
-            <NavLink to="/reservas" className={linkClass}>
-              Mis reservas
-            </NavLink>
+            <NavLink to="/reservas" className={linkClass}>Mis reservas</NavLink>
           )}
-
           {isAuthenticated && role === "ADMIN" && (
-            <NavLink to="/admin" className={linkClass}>
-              Admin
-            </NavLink>
+            <NavLink to="/admin" className={linkClass}>Admin</NavLink>
           )}
         </nav>
 
-        {/* Área de sesión + búsqueda */}
+        {/* ── Búsqueda + sesión ── */}
         <div className="hidden sm:flex items-center gap-3">
           {/* Buscador */}
           <form onSubmit={onSearch} className="flex items-center gap-2">
@@ -70,50 +57,51 @@ function Header() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar libros…"
-              className="w-52 rounded-lg border border-[var(--line)] bg-white px-3 py-2 text-sm"
+              className="w-44 rounded-full border border-[#5c3317]/50 bg-[#f5ede0]/5 px-4 py-1.5 text-sm text-[#f5ede0] placeholder:text-[#f5ede0]/30 outline-none focus:border-[#c8922a]/60 focus:bg-[#f5ede0]/8 transition"
             />
             <button
               type="submit"
-              className="px-3 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] text-sm"
+              className="rounded-full bg-gradient-to-r from-[#c8922a] to-[#a0671c] px-4 py-1.5 text-sm font-semibold text-[#120c07] transition hover:from-[#e5b56a] hover:to-[#c8922a] shadow-sm shadow-[#c8922a]/20"
             >
               Buscar
             </button>
           </form>
 
-          {/* ✅ Un solo botón de login a la derecha */}
+          {/* Sesión */}
           {!isAuthenticated ? (
             <button
               onClick={() => navigate("/login")}
-              className="px-3 py-2 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-2)] text-sm"
+              className="rounded-full border border-[#c8922a]/35 bg-[#c8922a]/10 px-4 py-1.5 text-sm font-semibold text-[#e5b56a] transition hover:bg-[#c8922a]/25 hover:border-[#c8922a]/60"
             >
               Login
             </button>
           ) : (
-            <>
-              <span className="text-sm text-[var(--muted)]">
-                Hola, <span className="text-[var(--ink)] font-semibold">{auth.user?.name}</span>{" "}
-                <span className="ml-2 px-2 py-1 rounded-md bg-[var(--bg)] text-[var(--coffee)] text-xs font-semibold">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-[#f5ede0]/55">
+                Hola,{" "}
+                <span className="text-[#f5ede0] font-semibold">{auth.user?.name}</span>
+                <span className="ml-2 inline-block rounded-full border border-[#c8922a]/30 bg-[#c8922a]/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-[#e5b56a]">
                   {role}
                 </span>
               </span>
-
               <button
                 onClick={() => logout()}
-                className="px-3 py-2 rounded-lg border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--bg)]"
+                className="rounded-full border border-[#5c3317]/50 bg-transparent px-4 py-1.5 text-sm font-medium text-[#f5ede0]/60 transition hover:border-[#f5ede0]/30 hover:text-[#f5ede0]"
               >
                 Logout
               </button>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Móvil (solo visual por ahora) */}
+        {/* ── Móvil ── */}
         <button
-          className="sm:hidden px-3 py-2 rounded-lg border border-[var(--line)] text-[var(--ink)]"
+          className="sm:hidden rounded-full border border-[#5c3317]/50 px-3 py-1.5 text-[#f5ede0]/70 transition hover:border-[#c8922a]/50 hover:text-[#e5b56a]"
           aria-label="Abrir menú"
         >
           ☰
         </button>
+
       </div>
     </header>
   )

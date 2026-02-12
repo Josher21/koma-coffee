@@ -44,17 +44,14 @@ export default function Catalogo() {
   function buildQuery() {
     const params = new URLSearchParams()
     params.set("page", String(page))
-
     if (search.trim()) params.set("search", search.trim())
     if (categoryId !== "") params.set("category_id", String(categoryId))
-
     return params.toString()
   }
 
   async function loadBooks() {
     setLoading(true)
     setError(null)
-
     try {
       const qs = buildQuery()
       const res = await api.get<Paginated<Book>>(`/books?${qs}`, { auth: isAuthenticated })
@@ -67,21 +64,10 @@ export default function Catalogo() {
     }
   }
 
-  // cargar categorías una vez
-  useEffect(() => {
-    loadCategories()
-  }, [])
-
-  // cuando cambian filtros, volver a página 1
-  useEffect(() => {
-    setPage(1)
-  }, [search, categoryId])
-
-  // cargar libros cuando cambia page/filtros/login
-  useEffect(() => {
-    loadBooks()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, isAuthenticated, search, categoryId])
+  useEffect(() => { loadCategories() }, [])
+  useEffect(() => { setPage(1) }, [search, categoryId])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadBooks() }, [page, isAuthenticated, search, categoryId])
 
   function clearFilters() {
     setSearch("")
@@ -90,97 +76,186 @@ export default function Catalogo() {
   }
 
   return (
-    <main className="bg-[var(--bg)] min-h-[calc(100vh-72px)]">
+    <main className="min-h-[calc(100vh-72px)] bg-[#120c07]">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-6 md:grid-cols-[260px_1fr]">
-          {/* Filtros */}
-          <aside className="rounded-2xl border border-[var(--line)] bg-white p-5 h-fit">
-            <h2 className="text-sm font-semibold text-[var(--ink)]">Filtros</h2>
 
-            <div className="mt-4 space-y-4">
+        {/* ── Page header ── */}
+        <div className="mb-8">
+          <p className="text-[0.67rem] font-medium uppercase tracking-[0.22em] text-[#c8922a]">
+            Koma Coffee
+          </p>
+          <h1 className="font-serif text-3xl font-black text-[#f5ede0] md:text-4xl">
+            Catálogo
+          </h1>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="h-px flex-1 bg-gradient-to-r from-[#c8922a]/25 to-transparent" />
+            <div className="h-1 w-1 rounded-full bg-[#c8922a]/40" />
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-[260px_1fr]">
+
+          {/* ── Aside filtros ── */}
+          <aside className="h-fit rounded-2xl border border-[#5c3317]/40 bg-gradient-to-b from-[#3b1f0e]/50 to-[#1a0f06]/70 p-5">
+
+            <p className="text-[0.67rem] font-medium uppercase tracking-[0.2em] text-[#c8922a]">
+              Filtros
+            </p>
+            <p className="mt-0.5 font-serif text-base font-bold text-[#f5ede0]">Buscar y filtrar</p>
+
+            <div className="mt-5 space-y-5">
+              {/* Búsqueda */}
               <div>
-                <label className="text-xs text-[var(--muted)]">Buscar (título o autor)</label>
+                <label className="block text-[0.7rem] font-medium uppercase tracking-[0.15em] text-[#c8922a]/70 mb-1.5">
+                  Título o autor
+                </label>
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Ej: Naruto, Urasawa..."
-                  className="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] bg-white"
+                  placeholder="Ej: Naruto, Urasawa…"
+                  className="w-full rounded-full border border-[#5c3317]/50 bg-[#f5ede0]/5 px-4 py-2 text-sm text-[#f5ede0] placeholder:text-[#f5ede0]/25 outline-none focus:border-[#c8922a]/60 focus:bg-[#f5ede0]/8 transition"
                 />
               </div>
 
+              {/* Categoría */}
               <div>
-                <label className="text-xs text-[var(--muted)]">Categoría</label>
+                <label className="block text-[0.7rem] font-medium uppercase tracking-[0.15em] text-[#c8922a]/70 mb-1.5">
+                  Categoría
+                </label>
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : "")}
-                  className="mt-1 w-full px-3 py-2 rounded-lg border border-[var(--line)] bg-white"
+                  className="w-full rounded-full border border-[#5c3317]/50 bg-[#1a0f06] px-4 py-2 text-sm text-[#f5ede0] outline-none focus:border-[#c8922a]/60 transition appearance-none cursor-pointer"
                 >
-                  <option value="">Todas</option>
+                  <option value="">Todas las categorías</option>
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>
 
+              {/* Limpiar */}
               <button
                 onClick={clearFilters}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--line)] text-sm text-[var(--muted)] hover:bg-[var(--surface)]"
+                className="w-full rounded-full border border-[#5c3317]/40 bg-transparent px-4 py-2 text-sm font-medium text-[#f5ede0]/40 transition hover:border-[#c8922a]/40 hover:text-[#e5b56a]"
               >
                 Limpiar filtros
               </button>
             </div>
           </aside>
 
-          {/* Contenido */}
+          {/* ── Sección principal ── */}
           <section>
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="text-2xl font-semibold text-[var(--ink)]">Catálogo</h1>
+            {/* Cabecera resultados */}
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                {pageData && (
+                  <span className="rounded-full border border-[#c8922a]/30 bg-[#c8922a]/10 px-3 py-1 text-xs font-semibold text-[#e5b56a]">
+                    {pageData.total} {pageData.total === 1 ? "título" : "títulos"}
+                  </span>
+                )}
+              </div>
 
-              {pageData && (
-                <div className="text-sm text-[var(--muted)]">
-                  Total: <span className="font-semibold text-[var(--ink)]">{pageData.total}</span>
-                </div>
+              {/* Indicador de página activa */}
+              {pageData && pageData.last_page > 1 && (
+                <span className="text-xs text-[#f5ede0]/35">
+                  Pág. <span className="text-[#f5ede0]/60 font-semibold">{pageData.current_page}</span>
+                  {" / "}
+                  <span className="text-[#f5ede0]/60 font-semibold">{pageData.last_page}</span>
+                </span>
               )}
             </div>
 
-            {loading && <p className="mt-6">Cargando…</p>}
-            {error && <p className="mt-6 text-red-700">{error}</p>}
-
-            {!loading && !error && books.length === 0 && (
-              <div className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 text-[var(--muted)]">
-                No hay libros con esos filtros.
+            {/* Estado: cargando */}
+            {loading && (
+              <div className="flex items-center gap-3 py-16 justify-center text-[#f5ede0]/40">
+                <span className="h-4 w-4 rounded-full border-2 border-[#c8922a]/30 border-t-[#c8922a] animate-spin" />
+                <span className="text-sm font-serif italic">Cargando catálogo…</span>
               </div>
             )}
 
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {books.map((b) => (
-                <BookCard key={b.id} book={b} onReserved={loadBooks} />
-              ))}
-            </div>
+            {/* Estado: error */}
+            {error && (
+              <div className="mt-4 rounded-2xl border border-red-900/40 bg-red-950/30 p-5 text-sm text-red-400/80 font-serif italic">
+                {error}
+              </div>
+            )}
 
-            {/* Paginación: ocultar flechas en primera/última */}
+            {/* Estado: sin resultados */}
+            {!loading && !error && books.length === 0 && (
+              <div className="mt-4 rounded-2xl border border-[#5c3317]/30 bg-gradient-to-br from-[#3b1f0e]/30 to-[#1a0f06]/50 p-10 text-center">
+                <p className="font-serif text-lg italic text-[#f5ede0]/35">
+                  No hay títulos con esos filtros.
+                </p>
+                <button
+                  onClick={clearFilters}
+                  className="mt-4 rounded-full border border-[#c8922a]/30 bg-[#c8922a]/10 px-5 py-2 text-sm font-semibold text-[#e5b56a] transition hover:bg-[#c8922a]/20"
+                >
+                  Limpiar filtros
+                </button>
+              </div>
+            )}
+
+            {/* Grid de libros */}
+            {!loading && !error && books.length > 0 && (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {books.map((b) => (
+                  <BookCard key={b.id} book={b} onReserved={loadBooks} />
+                ))}
+              </div>
+            )}
+
+            {/* ── Paginación ── */}
             {pageData && pageData.last_page > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-3">
+              <div className="mt-10 flex items-center justify-center gap-3">
                 {canPrev && (
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="px-4 py-2 rounded-lg border border-[var(--line)] bg-white"
+                    className="rounded-full border border-[#5c3317]/50 bg-[#3b1f0e]/30 px-5 py-2 text-sm font-medium text-[#f5ede0]/60 transition hover:border-[#c8922a]/40 hover:text-[#e5b56a] hover:bg-[#3b1f0e]/50"
                   >
                     ← Anterior
                   </button>
                 )}
 
-                <span className="text-sm text-[var(--muted)]">
-                  Página <span className="font-semibold text-[var(--ink)]">{pageData.current_page}</span> de{" "}
-                  <span className="font-semibold text-[var(--ink)]">{pageData.last_page}</span>
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: pageData.last_page }, (_, i) => i + 1)
+                    .filter((n) => {
+                      const cur = pageData.current_page
+                      return n === 1 || n === pageData.last_page || Math.abs(n - cur) <= 1
+                    })
+                    .reduce<(number | "…")[]>((acc, n, idx, arr) => {
+                      if (idx > 0 && typeof arr[idx - 1] === "number" && (n as number) - (arr[idx - 1] as number) > 1) {
+                        acc.push("…")
+                      }
+                      acc.push(n)
+                      return acc
+                    }, [])
+                    .map((n, idx) =>
+                      n === "…" ? (
+                        <span key={`ellipsis-${idx}`} className="px-1 text-[#f5ede0]/25 text-sm">
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={n}
+                          onClick={() => setPage(n as number)}
+                          className={[
+                            "h-8 w-8 rounded-full text-sm font-semibold transition",
+                            n === pageData.current_page
+                              ? "bg-gradient-to-br from-[#c8922a] to-[#a0671c] text-[#120c07] shadow-md shadow-[#c8922a]/25"
+                              : "border border-[#5c3317]/40 text-[#f5ede0]/40 hover:border-[#c8922a]/40 hover:text-[#e5b56a]",
+                          ].join(" ")}
+                        >
+                          {n}
+                        </button>
+                      )
+                    )}
+                </div>
 
                 {canNext && (
                   <button
                     onClick={() => setPage((p) => Math.min(pageData.last_page, p + 1))}
-                    className="px-4 py-2 rounded-lg border border-[var(--line)] bg-white"
+                    className="rounded-full border border-[#5c3317]/50 bg-[#3b1f0e]/30 px-5 py-2 text-sm font-medium text-[#f5ede0]/60 transition hover:border-[#c8922a]/40 hover:text-[#e5b56a] hover:bg-[#3b1f0e]/50"
                   >
                     Siguiente →
                   </button>

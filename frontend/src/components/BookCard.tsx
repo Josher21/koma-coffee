@@ -3,58 +3,90 @@ import type { Book } from "../types/library"
 import ReserveButton from "./ReserveButton"
 
 type Props = {
-    book: Book
-    onReserved?: () => void // para refrescar catálogo
+  book: Book
+  onReserved?: () => void
 }
 
 export default function BookCard({ book, onReserved }: Props) {
-    const navigate = useNavigate()
-    const available = book.available_copies ?? book.quantity ?? 0
-    const hasStock = available > 0
-    const hasReservation = !!book.my_active_reservation_id
+  const navigate = useNavigate()
+  const available = book.available_copies ?? book.quantity ?? 0
+  const hasStock = available > 0
+  const hasReservation = !!book.my_active_reservation_id
 
-    return (
-        <article
-        onClick={() => navigate(`/catalogo/${book.id}`)}
-        className="cursor-pointer rounded-2xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden hover:shadow-sm transition"
-        >
-        <div className="h-44 bg-white border-b border-[var(--line)]">
-            {book.image ? (
-            <img src={book.image} alt={book.title} className="h-full w-full object-cover" />
-            ) : (
-            <div className="h-full grid place-items-center text-[var(--muted)] text-sm">Sin imagen</div>
-            )}
+  return (
+    <article
+      onClick={() => navigate(`/catalogo/${book.id}`)}
+      className="group cursor-pointer rounded-2xl border border-[#5c3317]/35 bg-gradient-to-b from-[#3b1f0e]/40 to-[#1a0f06]/60 overflow-hidden transition hover:-translate-y-1 hover:border-[#c8922a]/35 hover:shadow-xl hover:shadow-black/40"
+    >
+      {/* ── Imagen ── */}
+      <div className="relative h-48 bg-[#1a0f06] border-b border-[#5c3317]/30 overflow-hidden">
+        {book.image ? (
+          <img
+            src={book.image}
+            alt={book.title}
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+          />
+        ) : (
+          <div className="h-full flex flex-col items-center justify-center gap-2">
+            <span className="text-3xl opacity-20">📖</span>
+            <span className="text-xs text-[#f5ede0]/20 font-serif italic">Sin imagen</span>
+          </div>
+        )}
+
+        {/* Badge stock sobre la imagen */}
+        <div className="absolute top-3 right-3">
+          {hasReservation ? (
+            <span className="rounded-full border border-[#c8922a]/40 bg-[#120c07]/80 px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-wide text-[#e5b56a] backdrop-blur-sm">
+              ✓ Reservado
+            </span>
+          ) : !hasStock ? (
+            <span className="rounded-full border border-red-900/50 bg-[#120c07]/80 px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-wide text-red-400/80 backdrop-blur-sm">
+              Agotado
+            </span>
+          ) : (
+            <span className="rounded-full border border-[#5c3317]/50 bg-[#120c07]/80 px-2.5 py-1 text-[0.62rem] font-semibold text-[#f5ede0]/40 backdrop-blur-sm">
+              {available} disp.
+            </span>
+          )}
         </div>
+      </div>
 
-        <div className="p-4">
-            <h3 className="text-[var(--ink)] font-semibold line-clamp-2">{book.title}</h3>
-            <p className="mt-1 text-sm text-[var(--muted)] line-clamp-1">{book.author}</p>
+      {/* ── Info ── */}
+      <div className="p-4">
+        {/* Shimmer superior al hover */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c8922a]/30 to-transparent opacity-0 transition group-hover:opacity-100" />
 
-            <p className="mt-2 text-xs text-[var(--muted)]">
-            Stock: <span className="font-semibold text-[var(--ink)]">{book.available_copies ?? book.quantity ?? 0}</span>
-            </p>
+        <h3 className="font-serif font-bold text-[#f5ede0] leading-snug line-clamp-2">
+          {book.title}
+        </h3>
+        <p className="mt-1 text-sm font-serif italic text-[#f5ede0]/45 line-clamp-1">
+          {book.author}
+        </p>
 
-            {/* Botón reservar dentro de la card */}
-            <div className="mt-3">
-            {hasReservation ? (
-                <button
-                disabled
-                className="w-full px-3 py-2 rounded-lg border border-[var(--line)] text-[var(--muted)] bg-white"
-                >
-                Ya reservado
-                </button>
-            ) : !hasStock ? (
-                <button
-                disabled
-                className="w-full px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700"
-                >
-                Agotado
-                </button>
-            ) : (
-                <ReserveButton book={book} onDone={onReserved} />
-            )}
-            </div>
+        {/* Divider */}
+        <div className="my-3 h-px bg-gradient-to-r from-[#c8922a]/15 via-[#c8922a]/25 to-transparent" />
+
+        {/* Botón reservar */}
+        <div onClick={(e) => e.stopPropagation()}>
+          {hasReservation ? (
+            <button
+              disabled
+              className="w-full rounded-full border border-[#5c3317]/40 bg-[#3b1f0e]/30 px-4 py-2 text-sm font-medium text-[#f5ede0]/30 cursor-not-allowed"
+            >
+              ✓ Ya reservado
+            </button>
+          ) : !hasStock ? (
+            <button
+              disabled
+              className="w-full rounded-full border border-red-900/40 bg-red-950/20 px-4 py-2 text-sm font-medium text-red-400/60 cursor-not-allowed"
+            >
+              Agotado
+            </button>
+          ) : (
+            <ReserveButton book={book} onDone={onReserved} />
+          )}
         </div>
-        </article>
-    )
+      </div>
+    </article>
+  )
 }
