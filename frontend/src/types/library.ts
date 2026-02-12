@@ -37,10 +37,20 @@ export type Reservation = {
 // Laravel paginate() devuelve algo con esta estructura
 export type Paginated<T> = {
   data: T[]
-  current_page: number
-  last_page: number
-  per_page: number
-  total: number
+  meta: {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+  }
+}
+
+export type AdminReservation = Reservation & {
+  user?: {
+    id: number
+    name: string
+    email: string
+  } | null
 }
 
 // Estructura real de paginate() con Resources

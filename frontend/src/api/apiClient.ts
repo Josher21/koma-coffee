@@ -12,6 +12,10 @@ type RequestOptions = {
 
 const BASE_URL = import.meta.env.VITE_API_URL as string
 
+function hasMessage(x: unknown): x is { message: string } {
+  return !!x && typeof x === "object" && "message" in x && typeof (x as any).message === "string"
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, headers = {}, auth = true } = options
 
@@ -22,12 +26,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     ...headers,
   }
 
-  // Solo añadimos Content-Type si mandamos body JSON
   if (body !== undefined) {
     finalHeaders["Content-Type"] = "application/json"
   }
 
-  // Token Bearer automático
   if (auth) {
     const { token } = loadAuth()
     if (token) finalHeaders.Authorization = `Bearer ${token}`
@@ -39,16 +41,20 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
 
-  // Intentamos leer JSON siempre (Laravel suele devolver JSON)
+  // ✅ 204 (sin contenido) típico en delete/patch a veces
+  if (res.status === 204) return null as T
+
   const contentType = res.headers.get("content-type") || ""
   const isJson = contentType.includes("application/json")
-  const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null)
+
+  const data: unknown = isJson
+    ? await res.json().catch(() => null)
+    : await res.text().catch(() => null)
 
   if (!res.ok) {
-    const message =
-      (data && typeof data === "object" && "message" in data && typeof (data as any).message === "string")
-        ? (data as any).message
-        : `Request failed with status ${res.status}`
+    const message = hasMessage(data)
+      ? data.message
+      : `Request failed with status ${res.status}`
 
     throw new ApiError(message, res.status, data)
   }
