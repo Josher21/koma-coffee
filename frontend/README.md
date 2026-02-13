@@ -1,73 +1,104 @@
-# React + TypeScript + Vite
+# ☕ Koma Coffee – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📖 Descripción del proyecto
 
-Currently, two official plugins are available:
+Koma Coffee es una aplicación web SPA desarrollada con **React, TypeScript y Tailwind CSS** que simula la plataforma digital de una cafetería especializada en café y cómics.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+El frontend permite:
 
-## React Compiler
+- Visualizar el catálogo de libros
+- Consultar el detalle de cada libro
+- Registrarse e iniciar sesión
+- Realizar reservas si el usuario está autenticado
+- Adaptar la interfaz según el estado del usuario
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+La aplicación consume una **API REST desarrollada en Laravel**, siguiendo una arquitectura desacoplada frontend-backend.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🧠 Funcionamiento
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- La navegación se gestiona con **React Router** sin recarga de página.
+- Los datos se obtienen mediante peticiones HTTP (`fetch`) al backend.
+- Las respuestas JSON se tipan con **interfaces TypeScript**.
+- El estado se gestiona con `useState` y `useEffect`.
+- La autenticación se realiza mediante **tokens Bearer**.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠 Tecnologías utilizadas
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- React
+- TypeScript
+- React Router DOM
+- Tailwind CSS
+- Fetch API
+- Vite
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📁 Estructura del proyecto
+
+src/
+├── components/
+├── pages/
+├── services/
+├── types/
+├── store/
+├── App.tsx
+└── main.tsx
+
+
+- `pages` → Vistas principales  
+- `components` → Elementos reutilizables  
+- `services` → Llamadas a la API  
+- `types` → Interfaces TypeScript  
+
+---
+
+## 🌍 Variables de entorno
+
+Crear un archivo `.env` en la raíz del frontend:
+
+VITE_API_URL=http://localhost:8000/api
+
+Es necesario que el backend esté ejecutándose en esa URL.
+
+---
+
+## 💻 Instalación y ejecución
+
+### 1. Clonar el repositorio
+
+git clone <https://github.com/Josher21/koma-coffee>
+cd koma-coffee/frontend
+
+### 2. Instalar dependencias
+
+npm install
+
+### 3. Ejecutar el servidor de desarrollo
+
+npm run dev
+
+La aplicación estará disponible en: <http://localhost:5173>
+
+---
+
+## 🎯 Requisitos cumplidos
+
+- Aplicación SPA con React Router
+- Componentes funcionales
+- Gestión de estado con Hooks
+- Formularios con validación básica
+- Consumo de API REST real
+- Tipado completo con TypeScript
+- Diseño responsive con Tailwind CSS
+
+---
+
+## 👨‍💻 Autor
+
+Jose Luis Sánchez Hernández
+IES Pere María d'Orts
+2º DAW – Desarrollo de Aplicaciones Web

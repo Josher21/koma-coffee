@@ -3,27 +3,31 @@ import { useLocation, useNavigate, useParams } from "react-router-dom"
 import type { Book } from "../types/library"
 import { api } from "../api/apiClient"
 import { useAuth } from "../store/auth-context"
+// Servicio de reservas (encapsula endpoints de reservar / cancelar)
 import { reservationService } from "../api/services/reservationService"
 
 function BookDetail() {
-  const { id } = useParams()
+  const { id } = useParams()  // Leemos ID desde la URL
   const bookId = Number(id)
 
-  const [book, setBook] = useState<Book | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [actionLoading, setActionLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [book, setBook] = useState<Book | null>(null)       // datos del libro
+  const [loading, setLoading] = useState(false)             // carga inicial del libro
+  const [actionLoading, setActionLoading] = useState(false) // carga de acciones
+  const [error, setError] = useState<string | null>(null)   // Mensaje de error
 
-  const { isAuthenticated, user } = useAuth()
-  const isAdmin = user?.role === "ADMIN"
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { isAuthenticated, user } = useAuth()     // Estado de autenticacion
+  const isAdmin = user?.role === "ADMIN"        
+  const navigate = useNavigate()                  // Navegacion y ruta actual
+  const location = useLocation()                  // Redirige el login para volver
 
+  // Carga de libros desde API
   async function loadBook() {
     if (!bookId) return
     setLoading(true)
     setError(null)
+
     try {
+      // solo añade token si hay sesión
       const data = await api.get<Book>(`/books/${bookId}`, { auth: isAuthenticated })
       setBook(data)
     } catch {
@@ -33,17 +37,25 @@ function BookDetail() {
     }
   }
 
+  // useEffect: ejecuta loadBook al entrar al detalle o cuando cambie:
+  // - bookId (si cambias de libro)
+  // - isAuthenticated (si haces login y vuelves, recarga para ver datos de tu reserva)
   useEffect(() => { loadBook() }, [bookId, isAuthenticated])
 
+  // Reservar libro
   async function handleReserve() {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: location.pathname } })
       return
     }
+
     setActionLoading(true)
     setError(null)
+
+    // Crea la reserva en backend (ej: POST /reservations)
     try {
       await reservationService.create(bookId)
+      // Recargamos el libro para actualizar disponibilidad y estado de reserva
       await loadBook()
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al reservar")
@@ -52,16 +64,21 @@ function BookDetail() {
     }
   }
 
+  // Cancelar reserva
   async function handleCancel() {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: location.pathname } })
       return
     }
+    // El backend nos devuelve el id de la reserva activa del usuario (si existe)
     const reservationId = book?.my_active_reservation_id
+
     if (!reservationId) return
-    setActionLoading(true)
-    setError(null)
+      setActionLoading(true)
+      setError(null)
+
     try {
+      // Cancela la reserva en backend (PATCH/DELETE)
       await reservationService.cancel(reservationId)
       await loadBook()
     } catch (e) {
