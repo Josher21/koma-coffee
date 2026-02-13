@@ -1,4 +1,8 @@
+// Routes → contenedor de todas las rutas.
+// Route → define cada ruta individual.
 import { Routes, Route } from "react-router-dom"
+// Importamos las distintas páginas de la aplicación.
+// Cada una representa una "pantalla" diferente.
 import Home from "../pages/Home"
 import Login from "../pages/Login"
 import Register from "../pages/Register"
@@ -12,6 +16,7 @@ import BookDetail from "../pages/BookDetail"
 import BookEdit from "../pages/BookEdit"
 import CoffeeList from "../pages/CoffeeList"
 
+// Componente encargado de definir todas las rutas del frontend.
 function AppRouter() {
   return (
     <Routes>
@@ -20,6 +25,7 @@ function AppRouter() {
       <Route path="/catalogo/:id" element={<BookDetail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
       <Route path="/admin" element={
         <ProtectedRoute requiredRole="ADMIN">
         <Admin />
@@ -41,5 +47,4 @@ function AppRouter() {
     </Routes>
   )
 }
-
 export default AppRouter

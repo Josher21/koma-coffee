@@ -4,7 +4,7 @@ export type AuthUser = {
   id: number
   name: string
   email: string
-  role: Role // ✅ no string
+  role: Role
 }
 
 export type AuthState = {
