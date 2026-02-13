@@ -42,7 +42,7 @@ export default function Admin() {
     setLoading(true)
     setError(null)
     try {
-      // ✅ Admin list paginado
+      // Admin list paginado
       const res: Paginated<AdminReservation> = await reservationService.adminList({
         page,
         onlyActive,
@@ -79,7 +79,7 @@ export default function Admin() {
     const body = encodeURIComponent(
       `Hola,\n\nTe escribo sobre tu reserva${bookTitle ? ` del libro "${bookTitle}"` : ""}.\n\nUn saludo,\nKoma Coffee`
     )
-    // ✅ Abre Gmail “redactar”
+    // Abre Gmail “redactar”
     const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
       email
     )}&su=${subject}&body=${body}`

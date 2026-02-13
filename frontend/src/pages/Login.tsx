@@ -4,23 +4,29 @@ import { useAuth } from "../store/auth-context"
 
 export default function Login() {
   const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate = useNavigate()    // Hook para navegar programáticamente entre rutas
+  const location = useLocation()    // Hook para acceder al estado de la ruta actual
 
+  // Si el usuario fue redirigido aquí desde otra página protegida,
+  // guardamos esa ruta en "state.from"
   const state = location.state as { from?: string } | null
+  // Volvemos a la ruta guardada y si no a Home
   const redirectTo = state?.from ?? "/"
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)   // Error si falla el login
+  const [loading, setLoading] = useState(false)       // Estado de carga mientras se hace la petición al backend
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault()  // Evita que el formulario recargue la página
     setError(null)
     setLoading(true)
+
     try {
+      // Llamamos al login del contexto (que llama a la API)
       await login(email, password)
+      // Si todo va bien, redirigimos a la página anterior (replace evita que volvamos a la página de login)
       navigate(redirectTo, { replace: true })
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error en login")

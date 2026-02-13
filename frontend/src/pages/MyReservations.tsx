@@ -8,15 +8,17 @@ function MyReservations() {
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
 
-  const [reservations, setReservations] = useState<Reservation[]>([])
-  const [loading, setLoading] = useState(false)
-  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [reservations, setReservations] = useState<Reservation[]>([])         // Lista de reservas del usuario
+  const [loading, setLoading] = useState(false)                               // Indicador de carga inicial
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null) // Guarda el ID de la reserva que está siendo cancelada
+  const [error, setError] = useState<string | null>(null) 
 
-  // ✅ Filtro (escalable)
+  // Filtro (solo activas)
   const [onlyActive, setOnlyActive] = useState(false)
 
+  // GET /reservations/me
   async function loadReservations() {
+    // Si no está autenticado → redirigimos a login
     if (!isAuthenticated) {
       navigate("/login", { state: { from: "/reservas" } })
       return
@@ -26,7 +28,9 @@ function MyReservations() {
     setError(null)
 
     try {
+      // Llamada al backend (requiere token)
       const res = await reservationService.me()
+      // Guardamos reservas en estado
       setReservations(res)
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudieron cargar tus reservas")
@@ -35,10 +39,14 @@ function MyReservations() {
     }
   }
 
+  // Se ejecuta automáticamente:
+  // - Al montar el componente
+  // - Si cambia el estado de autenticación (login/logout)
   useEffect(() => {
     loadReservations()
   }, [isAuthenticated])
 
+  // PATCH /reservations/:id/cancel
   async function handleCancel(reservationId: number) {
     if (!confirm("¿Cancelar esta reserva?")) return
 
@@ -47,6 +55,7 @@ function MyReservations() {
 
     try {
       await reservationService.cancel(reservationId)
+      // Recargamos lista tras cancelar
       await loadReservations()
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al cancelar la reserva")
@@ -56,8 +65,9 @@ function MyReservations() {
   }
 
   const filteredReservations = useMemo(() => {
-    const base = onlyActive ? reservations.filter(r => r.status === "active") : reservations
-    // opcional: activas primero siempre
+    // Si onlyActive = true → filtramos solo activas
+    const base = onlyActive ? reservations.filter(r => r.status === "active") : reservations  
+    // activas primero siempre
     return [...base].sort((a, b) => (a.status === b.status ? 0 : a.status === "active" ? -1 : 1))
   }, [reservations, onlyActive])
 

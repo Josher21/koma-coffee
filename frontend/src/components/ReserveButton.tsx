@@ -5,26 +5,30 @@ import { reservationService } from "../api/services/reservationService"
 import type { Book } from "../types/library"
 
 type Props = {
-  book: Book
-  onDone?: () => void
-  className?: string
+  book: Book            // Libro sobre el que se va a actuar
+  onDone?: () => void   // Función opcional a ejecutar tras reservar
+  className?: string    // Permite pasar estilos desde fuera (reutilizable)
 }
 
+// Componente reutilizable que gestiona la acción de reservar un libro
 export default function ReserveButton({ book, onDone, className }: Props) {
-  const { isAuthenticated } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { isAuthenticated } = useAuth() // Estado global de autenticación
+  const navigate = useNavigate()        // Permite redirigir  
+  const location = useLocation()        // Permite saber la ruta actual (para volver tras login)
 
+  // Estados internos del botón
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const available = book.available_copies ?? book.quantity ?? 0
-  const hasActiveReservation = !!book.my_active_reservation_id
-  const canReserve = available > 0 && !hasActiveReservation
+  const available = book.available_copies ?? book.quantity ?? 0 // Calculamos copias disponibles
+  const hasActiveReservation = !!book.my_active_reservation_id  // ¿El usuario tiene ya una reserva activa?
+  const canReserve = available > 0 && !hasActiveReservation     // ¿Se puede reservar? → hay stock y no hay reserva activa
 
   async function handleReserve(e?: React.MouseEvent) {
     e?.stopPropagation()
 
+    // Si no está autenticado, lo enviamos al login
+    // y guardamos la ruta actual para volver después
     if (!isAuthenticated) {
       navigate("/login", { state: { from: location.pathname } })
       return
@@ -34,8 +38,8 @@ export default function ReserveButton({ book, onDone, className }: Props) {
     setError(null)
 
     try {
-      await reservationService.create(book.id)
-      onDone?.()
+      await reservationService.create(book.id) // Llamada al backend: POST /reservations
+      onDone?.()                               // Si el componente padre pasó una función onDone, a ejecutamos
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al reservar")
     } finally {
