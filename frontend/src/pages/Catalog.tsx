@@ -13,11 +13,14 @@ type Paginated<T> = {
 }
 
 export default function Catalogo() {
+  // Estado global de autenticación.
+  // Se usa para decidir si se envía token al backend.
   const { isAuthenticated } = useAuth()
 
-  const [categories, setCategories] = useState<Category[]>([])
-  const [pageData, setPageData] = useState<Paginated<Book> | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])            // Lista de categorías disponibles (para filtro)
+  const [pageData, setPageData] = useState<Paginated<Book> | null>(null)  // Datos paginados de libros (incluye metadata)
 
+  // Estados de UX
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,33 +31,47 @@ export default function Catalogo() {
   // paginación
   const [page, setPage] = useState(1)
 
-  const books = pageData?.data ?? []
-  const canPrev = (pageData?.current_page ?? 1) > 1
+  const books = pageData?.data ?? []  // Extraemos libros de la respuesta paginada
+  // Restriccion de botones de primera y ulimta pagina
+  const canPrev = (pageData?.current_page ?? 1) > 1   
   const canNext = (pageData?.current_page ?? 1) < (pageData?.last_page ?? 1)
 
+  // Cargar categorías desde backend
+  // GET /categories
+  // Endpoint público
   async function loadCategories() {
     try {
       const res = await api.get<Category[]>("/categories", { auth: false })
       setCategories(res)
     } catch {
-      setCategories([])
+      setCategories([]) // Array vacio
     }
   }
 
+  // Construir query string dinámicamente
+  // Ej. page=2&search=naruto&category_id=3
   function buildQuery() {
     const params = new URLSearchParams()
-    params.set("page", String(page))
-    if (search.trim()) params.set("search", search.trim())
-    if (categoryId !== "") params.set("category_id", String(categoryId))
+
+    params.set("page", String(page))                          // Página actual
+    if (search.trim()) params.set("search", search.trim())      // Solo añadimos search si no está vacío
+    if (categoryId !== "") params.set("category_id", String(categoryId))  // Solo añadimos categoría si está seleccionada
+
     return params.toString()
   }
 
+  // Cargar libros desde backend
+  // GET /books?page=X&search=...&category_id=...
   async function loadBooks() {
     setLoading(true)
     setError(null)
     try {
       const qs = buildQuery()
-      const res = await api.get<Paginated<Book>>(`/books?${qs}`, { auth: isAuthenticated })
+
+      // Si está autenticado, se envía token.
+      // Esto permite que Laravel devuelva campos personalizados
+      // como "my_active_reservation_id".
+      const res = await api.get<Paginated<Book>>(`/books?${qs}`, { auth: isAuthenticated })   
       setPageData(res)
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo cargar el catálogo")
@@ -63,10 +80,11 @@ export default function Catalogo() {
       setLoading(false)
     }
   }
-
+  // Cargar categorías una sola vez al montar el componente
   useEffect(() => { loadCategories() }, [])
+  // Si cambian filtros, volvemos a la página 1
   useEffect(() => { setPage(1) }, [search, categoryId])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // recargamos libros automáticamente tras cambios
   useEffect(() => { loadBooks() }, [page, isAuthenticated, search, categoryId])
 
   function clearFilters() {

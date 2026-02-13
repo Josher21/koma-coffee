@@ -58,7 +58,7 @@ export default function BookEdit() {
       setBook(b)
       setCategories(cats)
 
-      // ✅ precarga del formulario con tu Book type
+      // precarga del formulario con Book type
       setForm({
         title: b.title ?? "",
         author: b.author ?? "",
@@ -77,7 +77,7 @@ export default function BookEdit() {
   }
 
   useEffect(() => {
-    // ✅ protección extra (aunque la ruta esté protegida)
+    // protección extra (aunque la ruta esté protegida)
     if (!isAuthenticated) {
       navigate("/login", { state: { from: location.pathname } })
       return

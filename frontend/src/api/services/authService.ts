@@ -1,7 +1,7 @@
 import { api } from "../apiClient"
 import type { AuthUser } from "../../types/auth"
 
-/** Este será el “puente” para sustituir tu login mock por login real sin tocar media app. */
+/** Este será el “puente” para sustituir el login mock por login real sin tocar media app. */
 
 export type LoginRequest = {
   email: string

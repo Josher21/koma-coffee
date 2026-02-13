@@ -2,15 +2,19 @@ import { useNavigate } from "react-router-dom"
 import type { Book } from "../types/library"
 import ReserveButton from "./ReserveButton"
 
+// Definimos las propiedades (props) que recibe el componente BookCard
 type Props = {
-  book: Book
-  onReserved?: () => void
+  book: Book              // Objeto libro con toda su información
+  onReserved?: () => void // Propiedad posterior al reservar
 }
 
+// Componente que representa una tarjeta individual de libro
 export default function BookCard({ book, onReserved }: Props) {
-  const navigate = useNavigate()
-  const available = book.available_copies ?? book.quantity ?? 0
+  const navigate = useNavigate()                                // Hook de React Router que permite cambiar de página desde código.
+  const available = book.available_copies ?? book.quantity ?? 0 // Calculamos cuántas copias están disponibles.
   const hasStock = available > 0
+  // Booleano que indica si el usuario actual tiene una reserva activa de este libro.
+  // "!!" convierte el valor en true/false.
   const hasReservation = !!book.my_active_reservation_id
 
   return (

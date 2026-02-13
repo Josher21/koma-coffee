@@ -13,7 +13,7 @@ function Register() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Validación local simple (nivel alumno)
+  // Validación local simple
   function validate() {
     if (name.trim().length < 2) return "El nombre debe tener al menos 2 caracteres."
     if (!/^\S+@\S+\.\S+$/.test(email)) return "Email no válido."

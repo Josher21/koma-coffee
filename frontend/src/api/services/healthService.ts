@@ -9,6 +9,6 @@ export type HealthResponse = {
 }
 
 export async function getHealth(): Promise<HealthResponse> {
-  // Ojo: esta ruta tiene que existir en Laravel: GET /api/health
+  // Esta ruta tiene que existir en Laravel: GET /api/health
   return api.get<HealthResponse>("/health", { auth: false })
 }

@@ -59,6 +59,7 @@ const INFO_CARDS = [
 export default function Home() {
   const trackRef = useRef<HTMLDivElement | null>(null)
 
+  // Carrousel provisional
   function scrollByCards(direction: "left" | "right") {
     const track = trackRef.current
     if (!track) return
