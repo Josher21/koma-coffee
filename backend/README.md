@@ -175,11 +175,30 @@ composer install
 php artisan key:generate
 ```
 
-### 4. Ejecutar migraciones
+### 4. Ejecutar migraciones y seeders
+
+Para crear las tablas y generar los datos iniciales (usuarios de prueba), ejecutar:
 
 ```
-php artisan migrate
+php artisan migrate --seed
 ```
+
+Si se quiere reiniciar completamente la base de datos:
+
+```
+php artisan migrate:fresh --seed
+```
+
+Esto creará automáticamente dos usuarios de prueba:
+
+| Rol   | Email               | Contraseña |
+|-------|---------------------|------------|
+| ADMIN | admin@koma.com      | admin123  |
+| USER  | user@koma.com       | user123   |
+
+Estos usuarios permiten probar tanto la parte pública como el panel de administración.
+
+---
 
 ### 5. Iniciar servidor
 

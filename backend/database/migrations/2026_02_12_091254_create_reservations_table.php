@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
 
-            $table->index(['usuario_id', 'status']);
+            $table->index(['user_id', 'status']);
             $table->index(['book_id', 'status']);
         });
     }
