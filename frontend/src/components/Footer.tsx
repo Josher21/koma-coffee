@@ -2,7 +2,8 @@ import { Link } from "react-router-dom"
 
 function Footer() {
   return (
-    <footer className="w-full border-t border-[#5c3317]/35 bg-[#1a0f06] mt-16">
+    <footer className="w-full bg-[#120c07]">
+      
       <div className="mx-auto max-w-6xl px-4 py-12">
 
         {/* ── Marca superior ── */}
@@ -75,11 +76,10 @@ function Footer() {
         </div>
 
         {/* ── Línea inferior ── */}
-        <div className="mt-10 pt-6 border-t border-[#5c3317]/25 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#f5ede0]/30">
+        <div className="mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#f5ede0]/30">
           <span>© {new Date().getFullYear()} Koma Coffee. Todos los derechos reservados.</span>
           <span className="font-serif italic text-[#c8922a]/40">Café, cómics y buena historia.</span>
         </div>
-
       </div>
     </footer>
   )

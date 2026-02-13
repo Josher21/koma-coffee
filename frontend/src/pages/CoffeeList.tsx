@@ -53,7 +53,7 @@ export default function CoffeeList() {
   const [open, setOpen] = useState<string | null>(SECTIONS[0]?.title ?? null)
   const [showMenu, setShowMenu] = useState(false)
 
-  // const openIndex = useMemo(() => SECTIONS.findIndex(s => s.title === open), [open])
+  //const openIndex = useMemo(() => SECTIONS.findIndex(s => s.title === open), [open])
 
   return (
     <main className="min-h-screen bg-[#120c07]">
