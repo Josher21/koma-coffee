@@ -55,6 +55,20 @@ services:
     networks:
       - koma_network
 
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: koma_nginx_proxy
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend-react
+      - nginx-laravel
+    networks:
+      - koma_network
+
 volumes:
   koma_db_data:
 
