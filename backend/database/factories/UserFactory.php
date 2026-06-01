@@ -24,16 +24,46 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => 'Usuario ' . Str::random(5),
+            'email' => Str::random(8) . '@example.com',
             'email_verified_at' => now(),
+
+            // Si no existe contraseña previa, se crea con valor "password"
             'password' => static::$password ??= Hash::make('password'),
+
             'remember_token' => Str::random(10),
+
+            // Por defecto será USER
+            'role' => 'USER',
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Estado para usuario ADMIN
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'ADMIN',
+            'email' => 'admin@koma.com',
+            'name' => 'Admin User',
+        ]);
+    }
+
+    /**
+     * Estado para usuario normal
+     */
+    public function user(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'USER',
+            'email' => 'user@koma.com',
+            'name' => 'Normal User',
+        ]);
+    }
+
+    /**
+     * Estado para email no verificado
      */
     public function unverified(): static
     {

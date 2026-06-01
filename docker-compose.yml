@@ -1,0 +1,63 @@
+services:
+  app-laravel:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: koma_app_laravel
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.docker
+    depends_on:
+      - db
+    networks:
+      - koma_network
+
+  nginx-laravel:
+    image: nginx:alpine
+    container_name: koma_nginx_laravel
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app-laravel
+    networks:
+      - koma_network
+
+  frontend-react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: koma_frontend_react
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - nginx-laravel
+    networks:
+      - koma_network
+
+  db:
+    image: mariadb:11
+    container_name: koma_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: koma_coffee
+      MYSQL_USER: koma_user
+      MYSQL_PASSWORD: koma_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - koma_db_data:/var/lib/mysql
+    networks:
+      - koma_network
+
+volumes:
+  koma_db_data:
+
+networks:
+  koma_network:
+    driver: bridge
