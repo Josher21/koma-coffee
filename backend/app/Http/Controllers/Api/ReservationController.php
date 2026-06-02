@@ -11,6 +11,7 @@ use App\Models\Reservation;
 use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ReservationResource;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReservationController extends Controller
 {
@@ -138,6 +139,34 @@ class ReservationController extends Controller
             'message' => 'Reserva cancelada correctamente.',
             'data' => new ReservationResource($reservation),
         ]);
+    }
+
+    public function downloadPdf(Reservation $reservation)
+    {
+        $user = request()->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'No autenticado.',
+            ], 401);
+        }
+
+        if ($reservation->user_id !== $user->id && $user->role !== 'ADMIN') {
+            return response()->json([
+                'message' => 'No tienes permiso para descargar este PDF.',
+            ], 403);
+        }
+
+        $reservation->load([
+            'user',
+            'book.category',
+        ]);
+
+        $pdf = Pdf::loadView('pdfs.reservation', [
+            'reservation' => $reservation,
+        ]);
+
+        return $pdf->download('reserva-koma-coffee-' . $reservation->id . '.pdf');
     }
 
     /**

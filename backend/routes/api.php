@@ -28,6 +28,7 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout',     [AuthController::class, 'logout']);
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         Route::get('/user',        [AuthController::class, 'user']);
+        Route::get('/reservations/{reservation}/pdf', [ReservationController::class, 'downloadPdf']);
     });
 });
 
