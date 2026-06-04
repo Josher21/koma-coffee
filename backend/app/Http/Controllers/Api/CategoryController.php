@@ -15,7 +15,7 @@ class CategoryController extends Controller
         return response()->json(Category::orderBy('name')->get());
     }
 
-    public function sotre(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request)
     {
         $category = Category::create([
             'name' => $request->name,
