@@ -37,6 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservations', [ReservationController::class, 'store']);
     Route::get('/reservations/me', [ReservationController::class, 'me']);
     Route::patch('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel']);
+
+    Route::get('/reservations/{reservation}/pdf', [ReservationController::class, 'downloadPdf']);
 });
 
 // Público (catálogo)

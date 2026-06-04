@@ -12,6 +12,8 @@ use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ReservationResource;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\ReservationPdfService;
+use Illuminate\Support\Facades\Storage;
 
 class ReservationController extends Controller
 {
@@ -26,7 +28,10 @@ class ReservationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreReservationRequest $request): JsonResponse
+    public function store(
+        StoreReservationRequest $request,
+        ReservationPdfService $reservationPdfService
+    ): JsonResponse
     {
         $user = $request->user();
         $bookId = (int) $request->validated()['book_id'];
@@ -47,19 +52,20 @@ class ReservationController extends Controller
         try {
             $reservation = DB::transaction(function () use ($user, $bookId) {
 
-                // 1) Intentar “reservar” una copia disponible de forma atómica
+                // 1) Intentar reservar una copia disponible de forma atómica
                 $affected = Book::query()
                     ->where('id', $bookId)
                     ->where('available_copies', '>', 0)
                     ->decrement('available_copies', 1);
 
-                // Si no afectó filas => no había stock (o no existe)
+                // Si no afectó filas => no había stock o no existe
                 if ($affected === 0) {
-                    // Asegura si es por “no existe” o por “sin stock”
                     $exists = Book::query()->where('id', $bookId)->exists();
+
                     if (! $exists) {
                         abort(404, 'Libro no encontrado.');
                     }
+
                     abort(409, 'No hay copias disponibles para reservar este libro.');
                 }
 
@@ -72,6 +78,20 @@ class ReservationController extends Controller
                 ]);
             });
 
+            /*
+            * 3) Generar el PDF después de crear la reserva.
+            * Lo hacemos fuera de la transacción porque el PDF depende
+            * de que la reserva ya exista correctamente en la base de datos.
+            */
+            $pdfPath = $reservationPdfService->generate($reservation);
+
+            /*
+            * 4) Guardar la ruta del PDF en la reserva.
+            */
+            $reservation->update([
+                'pdf_path' => $pdfPath,
+            ]);
+
             return response()->json([
                 'message' => 'Reserva creada correctamente.',
                 'data' => new ReservationResource($reservation->load('book')),
@@ -82,20 +102,20 @@ class ReservationController extends Controller
         }
     }
 
-    // GET /api/reservations/me
-    // Devuelve todas tus reservas paginadas con los datos del libro
-    public function me(Request $request): JsonResponse
-    {
-        $userId = Auth::id();
+        // GET /api/reservations/me
+        // Devuelve todas tus reservas paginadas con los datos del libro
+        public function me(Request $request): JsonResponse
+        {
+            $userId = Auth::id();
 
-        $reservations = Reservation::query()
-            ->where('user_id', $userId)
-            ->with('book')
-            ->orderByDesc('reserved_at')
-            ->paginate(10);
+            $reservations = Reservation::query()
+                ->where('user_id', $userId)
+                ->with('book')
+                ->orderByDesc('reserved_at')
+                ->paginate(10);
 
-        return response()->json(ReservationResource::collection($reservations));
-    }
+            return response()->json(ReservationResource::collection($reservations));
+        }
 
     public function cancel(Request $request, Reservation $reservation): JsonResponse
     {
@@ -151,22 +171,42 @@ class ReservationController extends Controller
             ], 401);
         }
 
+        /*
+        * Solo puede descargar el PDF:
+        * - el usuario dueño de la reserva
+        * - o un administrador
+        */
         if ($reservation->user_id !== $user->id && $user->role !== 'ADMIN') {
             return response()->json([
                 'message' => 'No tienes permiso para descargar este PDF.',
             ], 403);
         }
 
-        $reservation->load([
-            'user',
-            'book.category',
-        ]);
+        /*
+        * Comprobamos que la reserva tenga PDF generado.
+        */
+        if (! $reservation->pdf_path) {
+            return response()->json([
+                'message' => 'Esta reserva todavía no tiene PDF generado.',
+            ], 404);
+        }
 
-        $pdf = Pdf::loadView('pdfs.reservation', [
-            'reservation' => $reservation,
-        ]);
+        /*
+        * Comprobamos que el archivo exista físicamente.
+        */
+        if (! Storage::disk('local')->exists($reservation->pdf_path)) {
+            return response()->json([
+                'message' => 'El archivo PDF no existe.',
+            ], 404);
+        }
 
-        return $pdf->download('reserva-koma-coffee-' . $reservation->id . '.pdf');
+        /*
+        * Descargamos el PDF ya generado anteriormente.
+        */
+        return Storage::disk('local')->download(
+            $reservation->pdf_path,
+            'reserva-koma-coffee-' . $reservation->id . '.pdf'
+        );
     }
 
     /**

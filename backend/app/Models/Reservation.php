@@ -13,6 +13,7 @@ class Reservation extends Model
         'status',
         'reserved_at',
         'expires_at',
+        'pdf_path',
     ];
 
     protected $casts = [
